@@ -1,0 +1,9 @@
+Necklace
+0 6
+3 2 1 2 1
+1 5 10 magic:5 0
+1 5 10 wind:10 0
+1 10 15 wind:10 1
+4 10 15 magic:10 3
+7 5 10 magic:5 2
+7 5 15 magic:1 1
