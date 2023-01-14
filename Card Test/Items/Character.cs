@@ -9,6 +9,11 @@ namespace Card_Test {
 	public class Character {
 		public string Name { get; protected set; }
 		public int Health, MaxHealth, Mana, MaxMana;
+
+		public int FusionCounters = 0, MaxFusion = 0;
+		public int SideCastCounters = 0, MaxSide = 0;
+		public int MultiCastSlots = 0, MaxMulti = 0;
+
 		public List<Card> Hand = new List<Card>();
 		public List<int> Shuffled = new List<int>();
 
@@ -191,9 +196,9 @@ namespace Card_Test {
 		public void DrawCard (int amount = 1) {
 			while (amount > 0) {
 				if (Shuffled.Count == 0) { 
-					Hand.Add(Cards.Default);
+					Hand.Add(new Card(Cards.Default));
 				} else {
-					Hand.Add(Cards.Content[Shuffled[0]]);
+					Hand.Add(new Card(Cards.Content[Shuffled[0]]));
 					Shuffled.RemoveAt(0);
 				}
 
@@ -226,7 +231,19 @@ namespace Card_Test {
 		}
 
 		public string ManaToString () {
-			return "Mana " + new string('O', Mana) + new string('.', MaxMana - Mana);
+			string full = new string('O', Mana);
+			if (full.Length > 0) { full = "⁵" + full + "⁰"; }
+
+			return "Mana " + full + new string('.', MaxMana - Mana);
+		}
+
+		public string FusionsToString() {
+			if (MaxFusion == 0) { return ""; }
+
+			string full = new string('▲', FusionCounters);
+			if (full.Length > 0) { full = "⁶" + full + "⁰"; }
+
+			return "Fusion " + full + new string('.', MaxFusion - FusionCounters);
 		}
 
 		public string HealthToString () {

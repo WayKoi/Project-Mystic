@@ -1,4 +1,5 @@
 ﻿using Card_Test.Base;
+using Card_Test.Items;
 using Card_Test.Tables;
 using Card_Test.Utilities;
 using Sorting;
@@ -32,6 +33,7 @@ namespace Card_Test {
 
 			BattleMenu = new MenuItem[] {
 				new MenuItem(new string[] { "Plan", "P" }, PlayerAddPlan, TextUI.Parse, "plan or cast a move\n  Plan (Card to play) (Target)"),
+				new MenuItem(new string[] { "Fuse", "F" }, FusionPlan, TextUI.Parse, "Fuse Cards together, costs Fusion counters\n  Fuse (Cards) (Target)"),
 				new MenuItem(new string[] { "Remove", "R" }, PlayerRemovePlan, TextUI.Parse, "remove part of the plan\n  r (plan to remove)"),
 				new MenuItem(new string[] { "Stone", "S" }, Stone, TextUI.Parse, "use a stones effect\n Stone (Stone #) (Target optional)"),
 				new MenuItem(new string[] { "Stone?", "S?" }, StoneInfo, TextUI.Parse, "look at a stones info\n S? (Stone #)" ),
@@ -63,6 +65,9 @@ namespace Card_Test {
 						Involved[i].Unit.DrawCard();             // draw card
 						Involved[i].Unit.Mana = Math.Max(Involved[i].Unit.MaxMana - Involved[i].Overload, 0); // refresh mana
 						Involved[i].Unit.Plan.ClearPlan();            // clear the plan
+
+						Involved[i].Unit.FusionCounters = Involved[i].Unit.MaxFusion; // refresh counters
+						Involved[i].Unit.SideCastCounters = Involved[i].Unit.MaxSide; // refresh counters
 
 						if (Involved[i].Unit is CardAI) {        // generate a plan if they are an AI
 							(Involved[i].Unit as CardAI).GenPlan(Involved, Involved[i]);
@@ -290,6 +295,33 @@ namespace Card_Test {
 			return check;
 		}
 
+		public bool FusionPlan(int[] data) {
+			if (data.Length < 3) { return false; }
+			if (data[data.Length - 1] < 0 || data[data.Length - 1] >= Involved.Count) { return false; }
+
+			int target = data[data.Length - 1];
+			List<Card> Fuse = new List<Card>();
+
+			for (int i = 0; i < data.Length - 1; i++) {
+				if (data[i] < 1 || data[i] > Player.Hand.Count) { return false; }
+				if (Fuse.Contains(Player.Hand[data[i] - 1])) { return false; }
+				Fuse.Add(Player.Hand[data[i] - 1]);
+			}
+
+			PlayReport report = new PlayReport();
+			Plannable toplan = new FusionPlan(Fuse);
+			int plansize = Player.Plan.PlanSize();
+
+			bool check = Player.Plan.PlanOrCast(report, toplan, Involved, target);
+			report.PrintReport();
+
+			if (check && plansize == Player.Plan.PlanSize()) {
+				TextUI.Wait();
+			}
+
+			return check;
+		}
+
 		public bool PlayerRemovePlan(int[] data) {
 			if (data.Length < 1) { return false; }
 			bool check = Player.Plan.RemoveFromPlan(data[0] - 1);
@@ -391,7 +423,7 @@ namespace Card_Test {
 
 			Console.WriteLine();
 			TextUI.PrintFormatted("-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-");
-			TextUI.PrintFormatted(Player.ManaToString());
+			TextUI.PrintFormatted(Player.ManaToString() + (Player.FusionsToString().Length > 0 ? "\n" + Player.FusionsToString() : ""));
 			TextUI.PrintFormatted("Current Hand");
 			TextUI.PrintFormatted(Player.HandToString());
 

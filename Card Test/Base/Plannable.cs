@@ -9,7 +9,7 @@ namespace Card_Test.Base {
 		public bool Instant = false, Passive = false, Targeting = true;
 
 		public abstract void UpdateValues(Character caster);
-		public abstract bool Additional(PlayReport report);
+		public abstract bool Additional(Character Caster, PlayReport report);
 		public abstract bool Play(Character Caster, List<BattleChar> Targets, int Specific, PlayReport report = null);
 		public abstract void Cancel(Character Caster);
 		public abstract void Plan(Character Caster);
@@ -82,7 +82,7 @@ namespace Card_Test.Base {
 				Specific = -1;
 			}
 
-			return Planned.Additional(report);
+			return Planned.Additional(Caster, report);
 		}
 
 		public bool Plan (PlayReport report) {

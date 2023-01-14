@@ -52,3 +52,16 @@ C:\Users\Kyle\Desktop\#Dev\Card Test\Card Test\obj\Debug\netcoreapp3.1\Card Test
 C:\Users\Kyle\Desktop\#Dev\Card Test\Card Test\obj\Debug\netcoreapp3.1\Card Test.pdb
 C:\Users\Kyle\Desktop\#Dev\Card Test\Card Test\obj\Debug\netcoreapp3.1\Card Test.genruntimeconfig.cache
 C:\Users\Kyle\Desktop\Card Test\Card Test\obj\Debug\netcoreapp3.1\Card Test.csprojAssemblyReference.cache
+C:\Users\Kyle\Desktop\#Dev\Repos\Project-Mystic\Card Test\bin\Debug\netcoreapp3.1\Card Test.exe
+C:\Users\Kyle\Desktop\#Dev\Repos\Project-Mystic\Card Test\bin\Debug\netcoreapp3.1\Card Test.deps.json
+C:\Users\Kyle\Desktop\#Dev\Repos\Project-Mystic\Card Test\bin\Debug\netcoreapp3.1\Card Test.runtimeconfig.json
+C:\Users\Kyle\Desktop\#Dev\Repos\Project-Mystic\Card Test\bin\Debug\netcoreapp3.1\Card Test.runtimeconfig.dev.json
+C:\Users\Kyle\Desktop\#Dev\Repos\Project-Mystic\Card Test\bin\Debug\netcoreapp3.1\Card Test.dll
+C:\Users\Kyle\Desktop\#Dev\Repos\Project-Mystic\Card Test\bin\Debug\netcoreapp3.1\Card Test.pdb
+C:\Users\Kyle\Desktop\#Dev\Repos\Project-Mystic\Card Test\obj\Debug\netcoreapp3.1\Card Test.csprojAssemblyReference.cache
+C:\Users\Kyle\Desktop\#Dev\Repos\Project-Mystic\Card Test\obj\Debug\netcoreapp3.1\Card Test.AssemblyInfoInputs.cache
+C:\Users\Kyle\Desktop\#Dev\Repos\Project-Mystic\Card Test\obj\Debug\netcoreapp3.1\Card Test.AssemblyInfo.cs
+C:\Users\Kyle\Desktop\#Dev\Repos\Project-Mystic\Card Test\obj\Debug\netcoreapp3.1\Card Test.csproj.CoreCompileInputs.cache
+C:\Users\Kyle\Desktop\#Dev\Repos\Project-Mystic\Card Test\obj\Debug\netcoreapp3.1\Card Test.dll
+C:\Users\Kyle\Desktop\#Dev\Repos\Project-Mystic\Card Test\obj\Debug\netcoreapp3.1\Card Test.pdb
+C:\Users\Kyle\Desktop\#Dev\Repos\Project-Mystic\Card Test\obj\Debug\netcoreapp3.1\Card Test.genruntimeconfig.cache

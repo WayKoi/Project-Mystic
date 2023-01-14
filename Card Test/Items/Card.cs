@@ -133,7 +133,7 @@ namespace Card_Test {
 		}
 
 		// Overrides
-		public override bool Additional(PlayReport report) { return true; }
+		public override bool Additional(Character Caster, PlayReport report) { return true; }
 		public override void Cancel(Character Caster) { Caster.Hand.Add(this); }
 		public override void Plan(Character Caster) { Caster.Hand.Remove(this); }
 		public override void UpdateValues(Character caster) {

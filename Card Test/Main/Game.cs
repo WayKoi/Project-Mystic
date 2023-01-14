@@ -74,6 +74,8 @@ namespace Card_Test {
 				TextUI.Prompt("What would you like to do?", CharacterMenu);
 			}
 
+			// Global.Run.Player.MaxFusion = 2;
+
 			//Global.Run.Player.Material = 10000;
 
 			/*for (int i = 0; i < 5; i++) {

@@ -336,7 +336,7 @@ namespace Card_Test.Tables {
 			}
 		}
 
-		public override bool Additional(PlayReport report) {
+		public override bool Additional(Character Caster, PlayReport report) {
 			if (Effect.UsedThisTurn) {
 				if (report != null) { report.Additional.Add("This effect can only be used once per turn"); } 
 				return false;
