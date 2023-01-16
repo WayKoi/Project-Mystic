@@ -151,6 +151,8 @@ namespace Card_Test.Map {
 
 			TextUI.PrintFormatted("\"Come again, if I'm still around\"");
 
+			Global.Run.Player.Cards.ValidateDeck();
+
 			return true;
 		}
 
@@ -184,8 +186,6 @@ namespace Card_Test.Map {
 			Items.RemoveAt(data[0]);
 
 			TextUI.Wait();
-
-			Global.Run.Player.Cards.ValidateDeck();
 
 			return true;
 		}

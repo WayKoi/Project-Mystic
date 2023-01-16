@@ -96,6 +96,8 @@ namespace Card_Test.Tables {
 
 		public int DeckLim = -1, TrunkLim = -1;
 
+		private bool ValidateOnExit = false;
+
 		private Deck () {
 			EditDeckMenu = new MenuItem[] {
 				new MenuItem(new string[] { "Leave", "L" }, StopEditing, TextUI.Parse, "stop editing the deck"),
@@ -157,8 +159,8 @@ namespace Card_Test.Tables {
 		}
 
 		public void ValidateDeck () {
-			if (DeckLim != -1 && Content.Count > DeckLim) { EditDeck(); }
-			if (TrunkLim != -1 && Trunk.Count > TrunkLim) { EditDeck(); }
+			if (DeckLim != -1 && Content.Count > DeckLim) { EditDeck(true); }
+			if (TrunkLim != -1 && Trunk.Count > TrunkLim) { EditDeck(true); }
 		}
 
 		public void AddCard (Card card, bool sort = true) {
@@ -257,8 +259,10 @@ namespace Card_Test.Tables {
 			TextUI.PrintFormatted(TrunkToString() + "\n");
 		}
 
-		public bool EditDeck () {
+		public bool EditDeck (bool valid = false) {
+			ValidateOnExit = valid;
 			Editing = true;
+
 			while (Editing) {
 				PrintDeckEdit();
 				TextUI.Prompt("What would you like to do?", EditDeckMenu);
@@ -326,12 +330,11 @@ namespace Card_Test.Tables {
 			return Content.Count;
 		}
 
-		public bool StopEditing (int[] data) {
+		public bool Validate() {
 			if ((DeckLim == -1 || Content.Count <= DeckLim) && (TrunkLim == -1 || Trunk.Count <= TrunkLim)) {
-				Editing = false;
 				return true;
 			}
-			
+
 			if (TrunkLim != -1 && Trunk.Count > TrunkLim) {
 				TextUI.PrintFormatted("Trunk is overfilled!");
 			}
@@ -341,6 +344,16 @@ namespace Card_Test.Tables {
 			}
 
 			return false;
+		}
+
+		public bool StopEditing (int[] data) {
+			if (ValidateOnExit) {
+				Editing = !Validate();
+				return !Editing;
+			}
+
+			Editing = false;
+			return true;
 		}
 
 		public void PrintDeckEdit () {

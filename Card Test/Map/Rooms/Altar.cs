@@ -109,8 +109,6 @@ namespace Card_Test.Map.Rooms {
 				TextUI.Wait();
 			}
 
-			Global.Run.Player.Cards.ValidateDeck();
-
 			return true;
 		}
 
@@ -291,6 +289,8 @@ namespace Card_Test.Map.Rooms {
 
 			TextUI.PrintFormatted("You step away from the altar");
 			TextUI.Wait();
+
+			Global.Run.Player.Cards.ValidateDeck();
 
 			return true;
 		}

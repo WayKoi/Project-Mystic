@@ -62,35 +62,39 @@ namespace Card_Test {
 			TextUI.PrintFormatted(test.ToString());
 			TextUI.Wait();*/
 
-            // while (true) { } // hang
+			// while (true) { } // hang
 
-            MenuItem[] CharacterMenu = {
+			MenuItem[] CharacterMenu = {
 				new MenuItem(new string[] { "View", "V" }, ViewDetails, TextUI.Parse, "view a characters details" ),
 				new MenuItem(new string[] { "Choose", "C" }, ChooseCharacter, TextUI.Parse, "choose a character")
 			};
 
-			while (Global.Run == null) {
-				PrintCharacterSelection();
-				TextUI.Prompt("What would you like to do?", CharacterMenu);
-			}
-
-			// Global.Run.Player.MaxFusion = 2;
-
-			//Global.Run.Player.Material = 10000;
-
-			/*for (int i = 0; i < 5; i++) {
-				for (int ii = 0; ii < Global.Run.Player.Gear.Count; ii++) {
-					Global.Run.Player.Gear[ii].Upgrade(true);
+			while (true) {
+				while (Global.Run == null) {
+					PrintCharacterSelection();
+					TextUI.Prompt("What would you like to do?", CharacterMenu);
 				}
-			}*/
 
-			/*Console.Clear();
-			StoneTable.RollStone("Test Gem", "TG", StoneTable.IvoryGem, 6);*/
+				// Global.Run.Player.MaxFusion = 2;
 
-			Global.Run.TenFloor.Init();
-			Global.Run.TenFloor.Run();
-			/*Battle batt = new Battle(Global.Run.Players.ToArray(), new Character[] { EnemyTable.GenEntry(EnemyTable.DuneWizard) });
-			batt.Run();*/
+				//Global.Run.Player.Material = 10000;
+
+				/*for (int i = 0; i < 5; i++) {
+					for (int ii = 0; ii < Global.Run.Player.Gear.Count; ii++) {
+						Global.Run.Player.Gear[ii].Upgrade(true);
+					}
+				}*/
+
+				/*Console.Clear();
+				StoneTable.RollStone("Test Gem", "TG", StoneTable.IvoryGem, 6);*/
+
+				Global.Run.TenFloor.Init();
+				Global.Run.TenFloor.Run();
+				/*Battle batt = new Battle(Global.Run.Players.ToArray(), new Character[] { EnemyTable.GenEntry(EnemyTable.DuneWizard) });
+				batt.Run();*/
+
+				Global.Run = null;
+			}
 		}
 
 		public static void PrintCharacterSelection () {

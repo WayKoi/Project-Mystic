@@ -106,8 +106,6 @@ namespace Card_Test.Map.Rooms {
 					Global.Run.Player.Cards.AddCardTrunk(Result);
 
 					TextUI.Wait();
-
-					Global.Run.Player.Cards.ValidateDeck();
 				}
 
 			} else {
@@ -145,9 +143,8 @@ namespace Card_Test.Map.Rooms {
 				Symbol = "⁴σ⁰";
 				ExtraDesc = "\nThe fire under it has gone out";
 				Extinguished = true;
-				Interacting = false;
 
-				TextUI.PrintFormatted(Global.Run.Player.Name + " steps away from the now cold cauldron\n");
+				Leave(null);
 			} else {
 				TextUI.PrintFormatted("¹The fire stays lit!⁰\nThe Cauldron can be used agian");
 				MaterialAdded = 0;
@@ -215,6 +212,8 @@ namespace Card_Test.Map.Rooms {
 
 			TextUI.PrintFormatted("You step away from the cauldron");
 			TextUI.Wait();
+
+			Global.Run.Player.Cards.ValidateDeck();
 
 			return true;
 		}

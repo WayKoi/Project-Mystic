@@ -100,6 +100,7 @@ namespace Card_Test.Map {
                 new MenuItem(new string[] { "View", "V" }, ViewRoom, ParseMove, "look around the room"),
                 new MenuItem(new string[] { "Edit", "E" }, EditDeck, ParseMove, "edit your deck"),
                 new MenuItem(new string[] { "Inventory", "I" }, ViewCharacter, ParseMove, "view your character"),
+                new MenuItem(new string[] { "Restart", "Res" }, EndGame, TextUI.DummyParse, "Restart the game"),
                 new MenuItem(new string[] { "Skip" }, SkipTo, TextUI.Parse, null),
                 new MenuItem(new string[] { "Reveal" }, RevealFloor, ParseMove, null)
             };
@@ -114,7 +115,7 @@ namespace Card_Test.Map {
 		}
 
         public bool EditDeck (int[] dum) {
-            return Global.Run.Player.Cards.EditDeck();
+            return Global.Run.Player.Cards.EditDeck(true);
         }
 
         public void Run() {
@@ -124,8 +125,9 @@ namespace Card_Test.Map {
             }
         }
 
-        public void EndGame () {
+        public bool EndGame (int[] dum = null) {
             GameRunning = false;
+            return true;
         }
 
         public bool RevealFloor(int[] dum) {
@@ -200,12 +202,15 @@ namespace Card_Test.Map {
 
         public int[] ParseMove(string input) {
             int[] ret = { -1 };
+            input = input.ToLower();
+
             switch (input) {
                 case "w": ret[0] = 0; break;
                 case "d": ret[0] = 1; break;
                 case "s": ret[0] = 2; break;
                 case "a": ret[0] = 3; break;
             }
+
             return ret;
         }  
 
