@@ -246,6 +246,15 @@ namespace Card_Test {
 			return "Fusion " + full + new string('.', MaxFusion - FusionCounters);
 		}
 
+		public string SidesToString() {
+			if (MaxSide == 0) { return ""; }
+
+			string full = new string('<', SideCastCounters);
+			if (full.Length > 0) { full = "₃" + full + "⁰"; }
+
+			return "Side " + full + new string('.', MaxSide - SideCastCounters);
+		}
+
 		public string HealthToString () {
 			return Health.ToString() + "\\" + MaxHealth.ToString(); 
 		}

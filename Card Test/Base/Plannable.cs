@@ -8,11 +8,12 @@ namespace Card_Test.Base {
 		public int ManaCost = 0, TargetType = 0;
 		public bool Instant = false, Passive = false, Targeting = true;
 
-		public abstract void UpdateValues(Character caster);
+		public abstract void UpdateValues(Character Caster);
 		public abstract bool Additional(Character Caster, PlayReport report);
 		public abstract bool Play(Character Caster, List<BattleChar> Targets, int Specific, PlayReport report = null);
 		public abstract void Cancel(Character Caster);
 		public abstract void Plan(Character Caster);
+		public virtual bool RemoveFromPlan() { return true; }
 	}
 
 	public class PlanStep {
@@ -21,6 +22,8 @@ namespace Card_Test.Base {
 		public Character Caster;
 		public List<BattleChar> Targets;
 		public int Specific;
+
+		public bool Removable = true;
 
 		public PlanStep (Plannable plan, Character caster, List<BattleChar> targs, int specific = -1) {
 			Planned = plan;
@@ -142,15 +145,24 @@ namespace Card_Test.Base {
 
 		public bool RemoveFromPlan (int ind) {
 			if (ind < 0 || ind >= Steps.Count) { return false; }
-			Steps[ind].Cancel();
-			Steps.RemoveAt(ind);
-			return true;
+			
+			if (Steps[ind].Removable) {
+				Steps[ind].Cancel();
+				Steps.RemoveAt(ind);
+				return true;
+			}
+
+			return false;
 		}
 
 		public void ClearPlan () {
 			while (Steps.Count > 0) {
 				RemoveFromPlan(0);
 			}
+		}
+
+		public void ResetPlan() {
+			Steps = new List<PlanStep>();
 		}
 
 		public string PlanOnTarget (int Target) {
@@ -167,15 +179,24 @@ namespace Card_Test.Base {
 		}
 
 		public void ExecutePlan () {
+			List<PlanStep> steps = new List<PlanStep>();
 			while (Steps.Count > 0) {
 				PlayReport report = new PlayReport();
 				
 				PlanStep step = Steps[0];
 				Steps.RemoveAt(0);
-				step.PlayStep(report);
 
+				if (!step.Planned.RemoveFromPlan()) {
+					steps.Add(step);
+					step.Planned.ManaCost = 0; // we have to zero the cost to make sure that if you cancel the plan you get nothing back
+					step.Removable = false;
+				}
+
+				step.PlayStep(report);
 				report.PrintReport();
 			}
+
+			Steps = steps;
 		}
 
 		public int PlanSize () {

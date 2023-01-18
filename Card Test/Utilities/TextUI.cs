@@ -6,7 +6,7 @@ namespace Card_Test {
     public static class TextUI {
 
         public static string RetryMessage = "Please try again";
-        public static string special = "⁰¹²³⁴⁵⁶⁷⁸⁹₀₁₂₃₄₅₆₇₈₉"; // ⁰¹²³⁴⁵⁶⁷⁸⁹₀₁₂₃₄₅₆₇₈₉
+        public static string special = "⁰¹²³⁴⁵⁶⁷⁸⁹₀₁₂₃₄"; // ⁰¹²³⁴⁵⁶⁷⁸⁹₀₁₂₃₄₅₆₇₈₉
         public static ConsoleColor[] Cols = {
             ConsoleColor.Gray,
             ConsoleColor.Green, 
@@ -244,6 +244,8 @@ namespace Card_Test {
         }
 
         public static void PrintFormatted (string print) {
+            if (Console.ForegroundColor != ConsoleColor.Gray) { Console.ForegroundColor = ConsoleColor.Gray; }
+
             for (int i = 0; i < print.Length; i++) {
                 if (print[i] == '~' && i < print.Length - 1) {
                     Console.Write(print[i + 1]);

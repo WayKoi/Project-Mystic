@@ -209,7 +209,7 @@ namespace Card_Test.Files {
 
 		// Private methods
 		private static List<string> ReadFile (string subdir, string name) {
-			string path = Dir + "\\" + subdir + "\\" + name;
+			string path = Dir + "/" + subdir + "/" + name;
 			
 			if (File.Exists(path)) {
 				return File.ReadAllLines(path).ToList();

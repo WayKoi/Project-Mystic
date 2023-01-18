@@ -76,6 +76,7 @@ namespace Card_Test {
 				}
 
 				// Global.Run.Player.MaxFusion = 2;
+				// Global.Run.Player.MaxSide = 1;
 
 				//Global.Run.Player.Material = 10000;
 
@@ -104,10 +105,7 @@ namespace Card_Test {
 			
 			int amt = 1;
 			foreach (CTableEntry ent in CharacterTable.Table) {
-				Console.Write(" " + amt + ": ");
-				Console.ForegroundColor = TextUI.Cols[TextUI.special.IndexOf(ent.Token[0])];
-				TextUI.PrintFormatted(ent.Name);
-				Console.ForegroundColor = ConsoleColor.Gray;
+				TextUI.PrintFormatted(" " + amt + ": " + ent.Token[0] + ent.Name + "⁰");
 				amt++;
 			}
 

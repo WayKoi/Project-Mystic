@@ -35,9 +35,9 @@ namespace Card_Test.Files {
 
 		// Private methods
 		private static void WriteFile(string subdir, string name, List<string> contents) {
-			string path = Dir + "\\" + subdir + "\\" + name;
-			path = path.Replace('/', '\\');
-			string pathnoFile = path.Replace("\\" + path.Split('\\')[path.Split('\\').Length - 1], "");
+			string path = Dir + "/" + subdir + "/" + name;
+			path = path.Replace('\\', '/');
+			string pathnoFile = path.Replace("/" + path.Split('/')[path.Split('/').Length - 1], "");
 
 			if (!Directory.Exists(pathnoFile)) { Directory.CreateDirectory(pathnoFile); }
 			if (!File.Exists(path)) { var tem = File.Create(path); tem.Close(); }
