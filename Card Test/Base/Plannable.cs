@@ -188,7 +188,6 @@ namespace Card_Test.Base {
 
 				if (!step.Planned.RemoveFromPlan()) {
 					steps.Add(step);
-					step.Planned.ManaCost = 0; // we have to zero the cost to make sure that if you cancel the plan you get nothing back
 					step.Removable = false;
 				}
 

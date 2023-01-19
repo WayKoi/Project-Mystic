@@ -112,6 +112,7 @@ namespace Card_Test.Items {
 				return Side.Play(Caster, Targets, Specific, report);
 			} else {
 				Counter--;
+				ManaCost = 0;
 			}
 
 			return true;
@@ -134,6 +135,79 @@ namespace Card_Test.Items {
 			string build = Side.ToString() + "\n";
 			build += (Counter == 1 ? "₃" : "³") + "-----⁰";
 			return build;
+        }
+    }
+
+	public class MultiPlan : Plannable {
+		private Card Multi;
+		private int Counter, Start;
+		private bool Remove = false;
+
+		public MultiPlan(Card multi) {
+			Multi = multi;
+			ManaCost = 1;
+			Counter = Multi.Tier;
+			Start = Counter;
+		}
+
+        public override bool Additional(Character Caster, PlayReport report) {
+			if (Caster.MultiCastSlots < 1) {
+				if (report != null) { report.Additional.Add("Not enough Open Multicasting slots available to multicast"); }
+				return false;
+			}
+
+			return true;
+        }
+
+        public override void Cancel(Character Caster) {
+			Caster.MultiCastSlots++;
+			Caster.Hand.Add(Multi);
+        }
+
+        public override void Plan(Character Caster) {
+			Caster.MultiCastSlots--;
+			Caster.Hand.Remove(Multi);
+		}
+
+        public override bool Play(Character Caster, List<BattleChar> Targets, int Specific, PlayReport report = null) {
+			BattleChar BattleCaster = BattleUtil.FindCharacter(Targets, Caster);
+			BattleCaster.Overload++;
+
+			int spec = Specific;
+			if (Counter != Start) {
+				List<int> Targs = BattleUtil.GetFromSide((BattleCaster.Side + 1) % 2, Targets);
+				for (int i = 0; i < Targs.Count; i++) {
+					if (!Targets[Targs[i]].Unit.HasHealth()) {
+						Targs.RemoveAt(i);
+						i--;
+					}
+				}
+
+				if (Targs.Count == 0) { return false; }
+
+				spec = Targs[Global.Rand.Next(0, Targs.Count)];
+			}
+
+			Counter--;
+			if (Counter == 0) {
+				Remove = true;
+			}
+
+			Multi.ChangeTier(Multi.Tier - 1);
+
+			Card cast = new Card(Multi);
+			cast.ChangeTier(cast.Element.TierLim[0]);
+			return cast.Play(Caster, Targets, spec, report);
+		}
+
+        public override void UpdateValues(Character Caster) { }
+
+        public override bool RemoveFromPlan() {
+			return Remove;
+        }
+
+        public override string ToString() {
+			return "";
         }
     }
 }
