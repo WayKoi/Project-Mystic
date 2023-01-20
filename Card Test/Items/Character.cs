@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 using Card_Test.Base;
+using Card_Test.Items;
 
 namespace Card_Test {
 	public class Character {
@@ -253,6 +254,17 @@ namespace Card_Test {
 			if (full.Length > 0) { full = "₃" + full + "⁰"; }
 
 			return "Side " + full + new string('.', MaxSide - SideCastCounters);
+		}
+
+		public string MultiToString() {
+			if (MaxMulti == 0 || MultiCastSlots == 0) { return ""; }
+
+			List<string> multis = new List<string>();
+			for (int i = 0; i < MultiCastSlots; i++) {
+				multis.Add(new MultiPlan(null).ToString());
+			}
+
+			return string.Join('\n', TextUI.MakeTable(multis, 0));
 		}
 
 		public string HealthToString () {

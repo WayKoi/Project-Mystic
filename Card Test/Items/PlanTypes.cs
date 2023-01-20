@@ -127,7 +127,7 @@ namespace Card_Test.Items {
 			Targeting = Side.Targeting;
 		}
 
-        public override bool RemoveFromPlan() {
+        public override bool RemoveFromPlan(Character Caster) {
 			return Counter == 0;
 		}
 
@@ -146,13 +146,16 @@ namespace Card_Test.Items {
 		public MultiPlan(Card multi) {
 			Multi = multi;
 			ManaCost = 1;
-			Counter = Multi.Tier;
+			TargetType = (Multi == null) ? 0 : Multi.TargetType;
+			Counter = (Multi == null) ? 0 : Multi.Tier;
 			Start = Counter;
+			Targeting = false;
+			if (Counter == 1) { Remove = true; }
 		}
 
         public override bool Additional(Character Caster, PlayReport report) {
 			if (Caster.MultiCastSlots < 1) {
-				if (report != null) { report.Additional.Add("Not enough Open Multicasting slots available to multicast"); }
+				if (report != null) { report.Additional.Add("Not enough Multicasting slots available to multicast"); }
 				return false;
 			}
 
@@ -161,7 +164,9 @@ namespace Card_Test.Items {
 
         public override void Cancel(Character Caster) {
 			Caster.MultiCastSlots++;
-			Caster.Hand.Add(Multi);
+			if (Counter == Start) {
+				Caster.Hand.Add(Multi);
+			}
         }
 
         public override void Plan(Character Caster) {
@@ -171,25 +176,23 @@ namespace Card_Test.Items {
 
         public override bool Play(Character Caster, List<BattleChar> Targets, int Specific, PlayReport report = null) {
 			BattleChar BattleCaster = BattleUtil.FindCharacter(Targets, Caster);
-			BattleCaster.Overload++;
 
-			int spec = Specific;
-			if (Counter != Start) {
-				List<int> Targs = BattleUtil.GetFromSide((BattleCaster.Side + 1) % 2, Targets);
-				for (int i = 0; i < Targs.Count; i++) {
-					if (!Targets[Targs[i]].Unit.HasHealth()) {
-						Targs.RemoveAt(i);
-						i--;
-					}
+			int TargetSide = (TargetType == 0 || TargetType == 2 ? (BattleCaster.Side + 1) % 2 : BattleCaster.Side);
+			List<int> Targs = BattleUtil.GetFromSide(TargetSide, Targets);
+			for (int i = 0; i < Targs.Count; i++) {
+				if (!Targets[Targs[i]].Unit.HasHealth()) {
+					Targs.RemoveAt(i);
+					i--;
 				}
-
-				if (Targs.Count == 0) { return false; }
-
-				spec = Targs[Global.Rand.Next(0, Targs.Count)];
 			}
 
+			if (Targs.Count == 0) { return false; }
+
+			int spec = Targs[Global.Rand.Next(0, Targs.Count)];
+
 			Counter--;
-			if (Counter == 0) {
+			if (Counter != 0) { BattleCaster.Overload++; }
+			if (Counter <= 1) {
 				Remove = true;
 			}
 
@@ -202,12 +205,29 @@ namespace Card_Test.Items {
 
         public override void UpdateValues(Character Caster) { }
 
-        public override bool RemoveFromPlan() {
+        public override bool RemoveFromPlan(Character Caster) {
+			if (Remove) { Caster.MultiCastSlots++; }
 			return Remove;
         }
 
         public override string ToString() {
-			return "";
+			string[] Frame = { "²┌─────┐⁰", "²│⁰", "²└─────┘⁰" };
+
+			List<string> build = new List<string>();
+			build.Add(Frame[0]);
+
+			string[] inner = { "┌───┐", "│   │", "│ ? │", "│   │", "└───┘" };
+			if (Multi != null) {
+				inner = Multi.ToString().Split('\n');
+			}
+
+			for (int i = 0; i < 5; i++) {
+				build.Add(Frame[1] + inner[i] + Frame[1]);
+			}
+
+			build.Add(Frame[2]);
+
+			return string.Join('\n', build);
         }
     }
 }

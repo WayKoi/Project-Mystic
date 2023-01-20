@@ -35,6 +35,7 @@ namespace Card_Test {
 				new MenuItem(new string[] { "Plan", "P" }, PlayerAddPlan, TextUI.Parse, "plan or cast a move\n  Plan (Card to play) (Target)"),
 				new MenuItem(new string[] { "Fuse", "F" }, FusionPlan, TextUI.Parse, "Fuse Cards together, costs Fusion counters\n  Fuse (Cards) (Target)"),
 				new MenuItem(new string[] { "Side", "Si" }, SidePlan, TextUI.Parse, "Side cast a card, costs a side cast counter and half the mana of the card\n  Side (Card) (Target)"),
+				new MenuItem(new string[] { "Multi", "M" }, MultiPlan, TextUI.Parse, "Multi cast a card, Needs an open slot\n  Multi (Card) (Target)"),
 				new MenuItem(new string[] { "Remove", "R" }, PlayerRemovePlan, TextUI.Parse, "remove part of the plan\n  r (plan to remove)"),
 				new MenuItem(new string[] { "Stone", "S" }, Stone, TextUI.Parse, "use a stones effect\n Stone (Stone #) (Target optional)"),
 				new MenuItem(new string[] { "Stone?", "S?" }, StoneInfo, TextUI.Parse, "look at a stones info\n S? (Stone #)" ),
@@ -57,6 +58,8 @@ namespace Card_Test {
 			for (int i = 0; i < Involved.Count; i++) {
 				Involved[i].Unit.Plan.ResetPlan();
 			}
+
+			Global.Run.Player.MultiCastSlots = Global.Run.Player.MaxMulti;
 
 			PlayReport StatusReport;
 
@@ -319,6 +322,25 @@ namespace Card_Test {
 			return check;
 		}
 
+		public bool MultiPlan(int[] data) {
+			if (data.Length < 1) { return false; }
+			if (data[0] < 1 || data[0] > Player.Hand.Count) { return false; }
+			data[0]--;
+
+			PlayReport report = new PlayReport();
+			Plannable toplan = new MultiPlan(Player.Hand[data[0]]);
+			int plansize = Player.Plan.PlanSize();
+
+			bool check = Player.Plan.PlanOrCast(report, toplan, Involved);
+			report.PrintReport();
+
+			if (check && plansize == Player.Plan.PlanSize()) {
+				TextUI.Wait();
+			}
+
+			return check;
+		}
+
 		public bool FusionPlan(int[] data) {
 			if (data.Length < 3) { return false; }
 			if (data[data.Length - 1] < 0 || data[data.Length - 1] >= Involved.Count) { return false; }
@@ -453,10 +475,12 @@ namespace Card_Test {
 
 			string notarg = Player.Plan.PlanOnTarget(-1);
 
-			if (notarg != string.Empty) {
+			if (notarg != string.Empty || Player.MultiCastSlots != 0) {
 				TextUI.PrintFormatted("Current Plan");
+				TextUI.PrintFormatted(Player.MultiToString());
 				TextUI.PrintFormatted(notarg);
 			}
+
 			TextUI.PrintFormatted("-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-");
 		}
 	}

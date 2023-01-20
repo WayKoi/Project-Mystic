@@ -13,7 +13,7 @@ namespace Card_Test.Base {
 		public abstract bool Play(Character Caster, List<BattleChar> Targets, int Specific, PlayReport report = null);
 		public abstract void Cancel(Character Caster);
 		public abstract void Plan(Character Caster);
-		public virtual bool RemoveFromPlan() { return true; }
+		public virtual bool RemoveFromPlan(Character Caster) { return true; }
 	}
 
 	public class PlanStep {
@@ -171,7 +171,7 @@ namespace Card_Test.Base {
 			for (int i = 0; i < Steps.Count; i++) {
 				if (Steps[i].Specific == Target) {
 					string step = Steps[i].ToString();
-					parts.Add(new string(' ', step.Split('\n')[0].Length / 2) + (i + 1).ToString() + "\n" + step);
+					parts.Add(new string(' ', TextUI.GetLength(step.Split('\n')[0]) / 2) + (i + 1).ToString() + "\n" + step);
 				}
 			}
 
@@ -186,7 +186,7 @@ namespace Card_Test.Base {
 				PlanStep step = Steps[0];
 				Steps.RemoveAt(0);
 
-				if (!step.Planned.RemoveFromPlan()) {
+				if (!step.Planned.RemoveFromPlan(step.Caster)) {
 					steps.Add(step);
 					step.Removable = false;
 				}
