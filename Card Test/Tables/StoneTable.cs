@@ -68,9 +68,10 @@ namespace Card_Test.Tables {
 			foreach (int num in enems) {
 				if (targets[num].Unit.HasHealth()) {
 					targets[num].Effect = data[0];
-					report.Affected.Add(targets[num]);
+					/*report.Affected.Add(targets[num]);
 					// damage, healing, shields broken, shields added, reaction, effect, damage blocked
-					report.AffectedEffects.Add(new int[] { 0, 0, 0, 0, -1, data[0], 0 });
+					report.AffectedEffects.Add(new int[] { 0, 0, 0, 0, -1, data[0], 0 });*/
+					report.Steps.Add(new ReportStep(targets[num], 0, 0, 0, 0, -1, data[0]));
 				}
 			}
 

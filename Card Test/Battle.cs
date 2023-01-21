@@ -513,7 +513,7 @@ namespace Card_Test {
 			double mitigator = 0;
 			int broken = 0;
 
-			report.Affected.Add(this);
+			// report.Affected.Add(this);
 			// damage, healing, shields broken, shields added, reaction, effect, damage blocked
 			int[] reportInt = { 0, 0, 0, 0, 0, 0, 0 };
 
@@ -551,7 +551,8 @@ namespace Card_Test {
 				reportInt[0] = Unit.TakeDamage(damage, type);
 			}
 
-			report.AffectedEffects.Add(reportInt);
+			report.Steps.Add(new ReportStep(this, reportInt[0], 0, reportInt[2], reportInt[3], reportInt[4], reportInt[5], reportInt[6]));
+			// report.AffectedEffects.Add(reportInt);
 
 			return reportInt[0];
 		}
@@ -573,8 +574,9 @@ namespace Card_Test {
 			reportInt[1] = amt;
 
 			if (amt != 0) {
-				report.Affected.Add(this);
-				report.AffectedEffects.Add(reportInt);
+				/*report.Affected.Add(this);
+				report.AffectedEffects.Add(reportInt);*/
+				report.Steps.Add(new ReportStep(this, 0, reportInt[1], 0, 0, reportInt[4], reportInt[5], 0));
 			}
 
 			return amt;

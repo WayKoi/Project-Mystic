@@ -117,7 +117,7 @@ namespace Card_Test.Tables {
 
 			int side = targets[specific].Side;
 			List<int> SubTargets = BattleUtil.GetFromSide(side, targets);
-			SubTargets.Remove(specific);
+			// SubTargets.Remove(specific);
 
 			if (SubTargets.Count == 0) { return; }
 			int chosen = Global.Rand.Next(0, SubTargets.Count);

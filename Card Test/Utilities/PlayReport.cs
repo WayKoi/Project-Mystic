@@ -8,9 +8,8 @@ namespace Card_Test.Utilities {
 	public class PlayReport {
 		public Character Caster;
 		public Plannable Played;
-		public List<BattleChar> Affected = new List<BattleChar>();
 		// damage, healing, shields broken, shields added, reaction, effect, damage blocked
-		public List<int[]> AffectedEffects = new List<int[]>();
+		public List<ReportStep> Steps = new List<ReportStep>();
 		public List<string> Additional = new List<string>();
 
 		public PlayReport(Character caster = null, Plannable played = null) {
@@ -32,45 +31,8 @@ namespace Card_Test.Utilities {
 			List<string> build = new List<string>();
 			build.Add(" ");
 
-			for (int i = 0; i < Affected.Count; i++) {
-				// Char -> (Wet) : reaction : 2 Shields blocked amt : amt Damage : amt Healed : Gets # shields
-				if (AffectedEffects.Count > i) {
-					string subBuild = Affected[i].Unit.Name;
-
-					if (AffectedEffects[i][5] != 0) {
-						subBuild += " -> (" + Effects.Table[AffectedEffects[i][5]].Name + ")";
-					}
-
-					if (AffectedEffects[i][4] != -1) {
-						subBuild += " : ²Triggers " + Reactions.Table[AffectedEffects[i][4]].Name + "⁰";
-					}
-
-					if (AffectedEffects[i][2] != 0) {
-						subBuild += " : ²Breaks " + AffectedEffects[i][2] + " Shield" + (AffectedEffects[i][2] > 1 ? "s" : "") + " Blocking " + AffectedEffects[i][6] + "⁰";
-					}
-
-					if (AffectedEffects[i][0] != 0) {
-						subBuild += " : Takes ³" + AffectedEffects[i][0] + "⁰ Damage ⁴" + Affected[i].Unit.HealthToString() + "⁰";
-					}
-
-					if (AffectedEffects[i][1] != 0) {
-						subBuild += " : Heals ¹" + AffectedEffects[i][1] + "⁰";
-					}
-
-					if (AffectedEffects[i][3] != 0) {
-						subBuild += " : Gets ²" + AffectedEffects[i][3] + " Shield" + (AffectedEffects[i][3] > 1 ? "s⁰" : "⁰");
-					}
-
-					if (!Effects.Table[AffectedEffects[i][5]].Stays) {
-						subBuild += " : Loses (" + Effects.Table[AffectedEffects[i][5]].Name + ")";
-					}
-
-					if (!Affected[i].Unit.HasHealth()) {
-						subBuild += " : ³Perishes⁰";
-					}
-
-					build.Add(subBuild);
-				}
+			for (int i = 0; i < Steps.Count; i++) {
+				build.Add(Steps[i].ToString());
 			}
 
 			for (int i = 0; i < Additional.Count; i++) {
@@ -80,6 +42,64 @@ namespace Card_Test.Utilities {
 			printout.Add(String.Join('\n', build));
 
 			return String.Join('\n', TextUI.MakeTable(printout));
+		}
+	}
+
+	public struct ReportStep {
+		public int Damage, Healing, SBroken, SAdded, React, Effect, Blocked;
+		public string HealthStamp;
+		public BattleChar Affected;
+
+		public ReportStep (BattleChar Aff, int damage = 0, int healing = 0, int sbroke = 0, int sadd = 0, int react = -1, int eff = 0, int blocked = 0) {
+			Affected = Aff;
+			HealthStamp = (Affected == null) ? "0/0" : Affected.Unit.HealthToString();
+
+			Damage = damage;
+			Healing = healing;
+			SBroken = sbroke;
+			SAdded = sadd;
+			React = react;
+			Effect = eff;
+			Blocked = blocked;
+		}
+
+		public override string ToString() {
+			// Character -> (Wet) : reaction : 2 Shields blocked amt : amt Damage : amt Healed : Gets # shields
+			string subBuild = Affected.Unit.Name;
+
+			if (Effect != 0) {
+				subBuild += " -> (" + Effects.Table[Effect].Name + ")";
+			}
+
+			if (React != -1) {
+				subBuild += " : ²Triggers " + Reactions.Table[React].Name + "⁰";
+			}
+
+			if (SBroken != 0) {
+				subBuild += " : ²Breaks " + SBroken + " Shield" + (SBroken > 1 ? "s" : "") + " Blocking " + Blocked + "⁰";
+			}
+
+			if (Damage != 0) {
+				subBuild += " : Takes ³" + Damage + "⁰ Damage ⁴" + HealthStamp + "⁰";
+			}
+
+			if (Healing != 0) {
+				subBuild += " : Heals ¹" + Healing + " ⁴" + HealthStamp + "⁰";
+			}
+
+			if (SAdded != 0) {
+				subBuild += " : Gets ²" + SAdded + " Shield" + (SAdded > 1 ? "s⁰" : "⁰");
+			}
+
+			if (!Effects.Table[Effect].Stays) {
+				subBuild += " : Loses (" + Effects.Table[Effect].Name + ")";
+			}
+
+			if (!Affected.Unit.HasHealth()) {
+				subBuild += " : ³Perishes⁰";
+			}
+
+			return subBuild;
 		}
 	}
 }

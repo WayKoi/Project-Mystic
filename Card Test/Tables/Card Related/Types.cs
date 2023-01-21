@@ -204,8 +204,7 @@ namespace Card_Test.Tables {
 		public static void Shield (Card cast, List<BattleChar> targets, int specific, PlayReport report) {
 			double[] mits = { 0.1, 0.25, 0.5, 0.75, 1 };
 			// TextUI.PrintFormatted(targets[specific].Unit.Name + " gets a shield");
-			report.Affected.Add(targets[specific]);
-			report.AffectedEffects.Add(new int[] { 0, 0, 0, 1, -1, 0, 0 });
+			report.Steps.Add(new ReportStep(targets[specific], 0, 0, 0, 1));
 			targets[specific].Shields.Add(new Shield(mits[(int) Math.Min(cast.Tier, 4)]));
 		}
 	}

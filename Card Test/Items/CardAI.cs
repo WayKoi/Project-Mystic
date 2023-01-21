@@ -7,6 +7,21 @@ using Sorting;
 
 namespace Card_Test {
 	public class CardAI : Character {
+
+		// simulate the field
+		// give all cards in the hand a value, choose targets immediately
+		// choose an amount of them to simulate and continue down that path
+		// at each step re calc the values of the cards
+		// repeat until out of possible plays (out of mana, no more cards, hit maxplay)
+		// collect all branches of the trees
+		// order by value
+		// apply the accuarcy to them
+		// choose top move left
+
+
+
+
+
 		// this class is the AI that plays as the enemy
 		private double RespondRate; // how often they actually play on their turn
 		private double Accuracy, TempAccuracy = 0; // how accurate their plays are
@@ -311,6 +326,159 @@ namespace Card_Test {
 			Damage = damage;
 			Target = target;
 			Value = value;
+		}
+	}
+
+
+
+
+	public class FieldSim {
+		public List<CharSim> Friends = new List<CharSim>();
+		public List<CharSim> Enemies = new List<CharSim>();
+		public List<CharSim> Total = new List<CharSim>();
+
+		private int TotalCount, FriendCount, EnemyCount;
+
+		public FieldSim (List<BattleChar> Involved, int FriendlySide) {
+			int invAmt = Involved.Count;
+			for (int i = 0; i < invAmt; i++) {
+				Character point = Involved[i].Unit;
+				CharSim sim = new CharSim(i, point.Health, point.MaxHealth, Involved[i].Effect, Involved[i].Side, Involved[i].Shields.Count);
+				
+				if (Involved[i].Side == FriendlySide) {
+					Friends.Add(sim);
+				} else {
+					Enemies.Add(sim);
+				}
+
+				Total.Add(sim);
+			}
+
+			TotalCount = Total.Count;
+			FriendCount = Friends.Count;
+			EnemyCount = Enemies.Count;
+		}
+
+		public FieldSim (FieldSim copy) {
+			int friendSide = copy.Friends[0].Side;
+			for (int i = 0; i < copy.TotalCount; i++) {
+				CharSim sim = new CharSim(copy.Total[i]);
+
+				if (copy.Total[i].Side == friendSide) {
+					Friends.Add(sim);
+				} else {
+					Enemies.Add(sim);
+				}
+
+				Total.Add(sim);
+			}
+
+			TotalCount = Total.Count;
+			FriendCount = Friends.Count;
+			EnemyCount = Enemies.Count;
+		}
+
+		public SimReport SimCard (Card card, int target, bool Change = false) {
+			if (card == null) { return null; }
+			SimReport report = new SimReport();
+
+			// summons are not interactable the turn that they are summoned, so there is no reason to add them to the sim
+			if (card.Mod == Mods.Translate("summon")) {
+				List<CardAI> lis = SummonTable.CreateSummon(card);
+				report.Summons += lis.Count;
+			}
+
+			report.Drawn   += (card.Sub == SubMods.Translate("plusone")) ? 1 : 0;
+			report.Drawn   += (card.Type == Types.Translate("time")) ? card.Tier : 0;
+			report.SGained += (card.Type == Types.Translate("shield")) ? Math.Max(card.Tier, 1) : 0;
+
+			if (target == -1) { return report; }
+
+			int cardEffect = card.Element.GetEffect();
+
+			report.Damage  = CalcAmount(Total[target], card.Damage, cardEffect);
+			report.Defeated += report.Damage >= Total[target].Health ? 1 : 0;
+			report.Healing = CalcAmount(Total[target], card.Damage, cardEffect, false);
+
+			if (Change) { Total[target].Health += report.Healing - report.Damage; Total[target].Effect = cardEffect; }
+
+			report.TargetsAffected = 1;
+
+			if (card.Mod == Mods.Translate("aoe")) {
+				int targeting = Total[target].Side;
+				for (int i = 0; i < TotalCount; i++) {
+					if (Total[i].Side == targeting && i != target) {
+						int tem = CalcAmount(Total[i], card.Damage, cardEffect) / 2;
+						int temh = CalcAmount(Total[i], card.Damage, cardEffect, false) / 2;
+
+						report.Damage   += tem;
+						report.Defeated += tem >= Total[i].Health ? 1 : 0;
+
+						report.Healing += temh;
+
+						if (Change) { Total[i].Health += temh - tem; Total[i].Effect = cardEffect; }
+						report.TargetsAffected++;
+					}
+				}
+			} else if (card.Sub == SubMods.Translate("jumping")) {
+				// I dont bother going through the reactions and checking overhealing / overkilling because the target is random
+				// I also do not change the values of any target as the AI does not know which one it will hit
+				// These values are entirely for hueristic purposes
+				int amt = (card.Damage / 2);
+				int targeting = Total[target].Side;
+
+				for (int i = 0; i < TotalCount; i++) {
+					if (Total[i].Side == targeting && i != target) {
+						if (amt >= Total[i].Health) {
+							report.Defeated++; // I assume that if it can jump to someone it can defeat it will
+							break;
+						}
+					}
+				}
+				
+				report.Damage += amt;
+				report.Healing += (card.Healing / 2);
+				report.TargetsAffected++;
+			}
+
+			return report;
+		}
+
+		private int CalcAmount (CharSim sim, int amt, int effect, bool damage = true) {
+			int start = (int) (amt * Reactions.GetReaction(sim.Effect, effect).Mult);
+
+			// we have to account for overhealing / overkilling
+			if (damage) {
+				start = Math.Min(start, sim.Health);
+			} else { // healing
+				start = Math.Min(start, sim.MaxHealth - sim.Health);
+			}
+
+			return start;
+		}
+	}
+
+	public class CharSim {
+		public int Index, Health, MaxHealth, Effect, Side, Shields;
+
+		public CharSim (int index, int health, int maxhp, int eff, int side, int shields) {
+			Index = index;
+			Health = health;
+			MaxHealth = maxhp;
+			Effect = eff;
+			Side = side;
+			Shields = shields;
+		}
+
+		public CharSim (CharSim copy) : this (copy.Index, copy.Health, copy.MaxHealth, copy.Effect, copy.Side, copy.Shields) { }
+	}
+
+	public class SimReport {
+		public int Damage, Healing, Defeated = 0, TargetsAffected = 0, Summons = 0, Drawn = 0, SGained = 0;
+
+		public SimReport (int damage = 0, int healing = 0) {
+			Damage = damage;
+			Healing = healing;
 		}
 	}
 }

@@ -60,9 +60,11 @@ namespace Card_Test.Tables {
 			if (stat.Link.Effect) {
 				affected.Effect = BaseTypes.Search(stat.Link.Type).Effect;
 
-				report.Affected.Add(affected);
+				/*report.Affected.Add(affected);
 				// damage, healing, shields broken, shields added, reaction, effect, damage blocked
-				report.AffectedEffects.Add(new int[] { 0, 0, 0, 0, -1, affected.Effect, 0 });
+				report.AffectedEffects.Add(new int[] { 0, 0, 0, 0, -1, affected.Effect, 0 });*/
+				report.Steps.Add(new ReportStep(affected, 0, 0, 0, 0, -1, affected.Effect));
+
 			}
 
 			report.Additional.Add(affected.Unit.Name + " " + stat.Link.Phrase);

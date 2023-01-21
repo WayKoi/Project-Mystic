@@ -1,7 +1,4 @@
 ﻿
-multicasting
-sidecasting
-
 Re make CardAI
 
 Make the campfire more balanced, the amount of health it gives needs to be lowered the further the player is in the dungeon
