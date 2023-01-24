@@ -25,6 +25,7 @@ namespace Card_Test.Items {
 				inter = Fusions.Fuse(inter, Fuse[i + 1]);
 			}
 
+			FusionCost = Fuse.Count - 1;
 			Result = inter;
 
 			TargetType = Result.TargetType;
@@ -51,7 +52,7 @@ namespace Card_Test.Items {
 				Caster.Hand.Add(Fuse[i]);
 			}
 
-			Caster.FusionCounters += Fuse.Count - 1;
+			// Caster.FusionCounters += Fuse.Count - 1;
 		}
 
 		public override void Plan(Character Caster) {
@@ -59,7 +60,7 @@ namespace Card_Test.Items {
 				Caster.Hand.Remove(Fuse[i]);
 			}
 
-			Caster.FusionCounters -= Fuse.Count - 1;
+			// Caster.FusionCounters -= Fuse.Count - 1;
 		}
 
 		public override bool Play(Character Caster, List<BattleChar> Targets, int Specific, PlayReport report = null) {
@@ -86,6 +87,7 @@ namespace Card_Test.Items {
 
 		public SidePlan(Card side) {
 			Side = side;
+			SideCost = 1;
 		}
 
         public override bool Additional(Character Caster, PlayReport report) {
@@ -99,12 +101,12 @@ namespace Card_Test.Items {
 
         public override void Cancel(Character Caster) {
 			Side.Cancel(Caster);
-			if (Counter == 1) { Caster.SideCastCounters++; }
+			// if (Counter == 1) { Caster.SideCastCounters++; }
         }
 
         public override void Plan(Character Caster) {
 			Side.Plan(Caster);
-			Caster.SideCastCounters--;
+			// Caster.SideCastCounters--;
         }
 
         public override bool Play(Character Caster, List<BattleChar> Targets, int Specific, PlayReport report = null) {
@@ -150,6 +152,9 @@ namespace Card_Test.Items {
 			Counter = (Multi == null) ? 0 : Multi.Tier;
 			Start = Counter;
 			Targeting = false;
+
+			MultiSlots = 1;
+
 			if (Counter == 1) { Remove = true; }
 		}
 
@@ -163,14 +168,14 @@ namespace Card_Test.Items {
         }
 
         public override void Cancel(Character Caster) {
-			Caster.MultiCastSlots++;
+			// Caster.MultiCastSlots++;
 			if (Counter == Start) {
 				Caster.Hand.Add(Multi);
 			}
         }
 
         public override void Plan(Character Caster) {
-			Caster.MultiCastSlots--;
+			// Caster.MultiCastSlots--;
 			Caster.Hand.Remove(Multi);
 		}
 

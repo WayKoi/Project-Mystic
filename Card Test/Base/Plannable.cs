@@ -5,7 +5,7 @@ using System.Text;
 
 namespace Card_Test.Base {
 	public abstract class Plannable {
-		public int ManaCost = 0, TargetType = 0;
+		public int ManaCost = 0, FusionCost = 0, SideCost = 0, MultiSlots = 0, TargetType = 0;
 		public bool Instant = false, Passive = false, Targeting = true;
 
 		public abstract void UpdateValues(Character Caster);
@@ -14,6 +14,7 @@ namespace Card_Test.Base {
 		public abstract void Cancel(Character Caster);
 		public abstract void Plan(Character Caster);
 		public virtual bool RemoveFromPlan(Character Caster) { return true; }
+		public virtual Card CardEquiv() { return null; }
 	}
 
 	public class PlanStep {
@@ -43,6 +44,21 @@ namespace Card_Test.Base {
 			if (Caster.Mana < Planned.ManaCost) {
 				if (report != null) { report.Additional.Add("Not enough mana to add to plan"); } 
 				return false; 
+			}
+
+			if (Caster.SideCastCounters < Planned.SideCost) {
+				if (report != null) { report.Additional.Add("Not enough sidecast counters to add to plan"); }
+				return false;
+			}
+
+			if (Caster.FusionCounters < Planned.FusionCost) {
+				if (report != null) { report.Additional.Add("Not enough fusion counters to add to plan"); }
+				return false;
+			}
+
+			if (Caster.MultiCastSlots < Planned.MultiSlots) {
+				if (report != null) { report.Additional.Add("Not enough open multi casting slots to add to plan"); }
+				return false;
 			}
 
 			if (Planned.Targeting) {
@@ -93,6 +109,9 @@ namespace Card_Test.Base {
 			if (!check) { return false; }
 
 			Caster.Mana -= Planned.ManaCost;
+			Caster.SideCastCounters -= Planned.SideCost;
+			Caster.FusionCounters -= Planned.FusionCost;
+			Caster.MultiCastSlots -= Planned.MultiSlots;
 			Planned.Plan(Caster);
 
 			return true;
@@ -109,6 +128,9 @@ namespace Card_Test.Base {
 
 		public void Cancel () {
 			Caster.Mana += Planned.ManaCost;
+			Caster.SideCastCounters += Planned.SideCost;
+			Caster.FusionCounters += Planned.FusionCost;
+			Caster.MultiCastSlots += Planned.MultiSlots;
 			Planned.Cancel(Caster);
 		}
 

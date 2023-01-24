@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
+using Card_Test.Base;
 using Card_Test.Files;
 using Card_Test.Tables;
 using Sorting;
@@ -330,7 +331,31 @@ namespace Card_Test {
 	}
 
 
+	public class SimNode {
+		public List<SimNode> Desc = new List<SimNode>();
+		public int Value = 0;
+		public FieldSim Current;
+		public Plannable Play;
+		public bool Valid = true;
 
+		private SimNode Link = null;
+
+		public SimNode(SimNode parent, Plannable play, int target = -1) {
+			Play = play;
+			Link = parent;
+			Current = new FieldSim(Link.Current);
+			ValuePlay(Current.SimCard(Play.CardEquiv(), target));
+		}
+
+		public void AddDescendant(Plannable play, int target = -1) {
+			Desc.Add(new SimNode(this, play, target));
+		}
+
+		private void ValuePlay(SimReport report) {
+			if (report == null) { return; }
+			// put value metrics here
+		}
+	}
 
 	public class FieldSim {
 		public List<CharSim> Friends = new List<CharSim>();
@@ -378,7 +403,7 @@ namespace Card_Test {
 			EnemyCount = Enemies.Count;
 		}
 
-		public SimReport SimCard (Card card, int target, bool Change = false) {
+		public SimReport SimCard (Card card, int target, bool Change = true) {
 			if (card == null) { return null; }
 			SimReport report = new SimReport();
 
