@@ -33,7 +33,7 @@ namespace Card_Test.Base {
 			Specific = specific;
 		}
 
-		private bool TestPlan (PlayReport report) {
+		public bool TestPlan (PlayReport report) {
 			Planned.UpdateValues(Caster);
 
 			if (Planned.Passive) { 
@@ -119,8 +119,10 @@ namespace Card_Test.Base {
 
 		public void PlayStep (PlayReport report) {
 			// PlayReport report = new PlayReport(Caster, Planned);
-			report.Caster = Caster;
-			report.Played = Planned;
+			if (report != null) {
+				report.Caster = Caster;
+				report.Played = Planned;
+			}
 
 			bool check = Planned.Play(Caster, Targets, Specific, report);
 			if (!check) { Cancel(); }

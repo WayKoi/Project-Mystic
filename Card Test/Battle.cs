@@ -57,9 +57,8 @@ namespace Card_Test {
 
 			for (int i = 0; i < Involved.Count; i++) {
 				Involved[i].Unit.Plan.ResetPlan();
+				Involved[i].Unit.MultiCastSlots = Involved[i].Unit.MaxMulti;
 			}
-
-			Global.Run.Player.MultiCastSlots = Global.Run.Player.MaxMulti;
 
 			PlayReport StatusReport;
 

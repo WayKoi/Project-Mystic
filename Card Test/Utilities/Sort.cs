@@ -178,5 +178,14 @@ namespace Sorting {
 			return a.Min > b.Min;
 
 		}
+
+		public static bool SimNode(object A, object B) {
+			if (!(A is SimNode) || !(B is SimNode)) { return false; }
+
+			SimNode a = A as SimNode;
+			SimNode b = B as SimNode;
+
+			return a.Value < b.Value;
+		}
 	}
 }

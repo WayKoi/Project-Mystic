@@ -170,8 +170,12 @@ namespace Card_Test {
 			return true;
 		}
 
-		// String returning methods
-		public override string ToString() {
+        public override Card CardEquiv() {
+			return this;
+        }
+
+        // String returning methods
+        public override string ToString() {
 			CardType type = Types.Search(Type);
 
 			int frame = Types.Search(Type).Tier;

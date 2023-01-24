@@ -30,6 +30,8 @@ namespace Card_Test {
 		public int MaxPlay;
 		public int PreferredTarget = -1;
 
+		public int FringeSize = 3;
+
 		public CardAI(string name, int maxhealth, int maxmana, TDeck deck = null, Drops drop = null, int respondrate = 100, int accuracy = 100, int maxplay = 1) : base (name, maxhealth, maxmana, deck) {
 			RespondRate = respondrate;
 			Accuracy = accuracy;
@@ -46,7 +48,69 @@ namespace Card_Test {
 
 		public CardAI(AIEntry tab) : this (tab.Name, tab.MaxHealth, tab.MaxMana, Reader.ReadDeck(tab.Deck), tab.Drop, tab.RespondRate, tab.Accuracy, tab.MaxPlay) { }
 
-		public void GenPlan (List<BattleChar> Targets, BattleChar Self) {
+		public void GenPlan(List<BattleChar> Targets, BattleChar Self) {
+			FieldSim Point = new FieldSim(Targets, Self.Side);
+			SimNode Root = new SimNode(Point, null);
+
+			GenPlan(Root);
+
+			// traverse the tree based on value
+			SimNode travel = Root;
+			int desccount = travel.Desc.Count;
+
+			while (desccount > 0) {
+				int cand = -1;
+				int candVal = 0;
+				
+				for (int i = 0; i < desccount; i++) {
+					if (travel.Desc[i].Value > candVal || cand == -1) {
+						candVal = travel.Desc[i].Value;
+						cand = i;
+					}
+				}
+
+				travel = travel.Desc[cand];
+				desccount = travel.Desc.Count;
+			}
+
+			travel.GenPlan(this);
+		}
+
+		private void GenPlan(SimNode point) {
+			int handsize = Hand.Count;
+			List<SimNode> Choices = new List<SimNode>();
+
+			for (int i = 0; i < handsize; i++) {
+				if (!point.CheckUsed(Hand[i])) {
+					SimNode test = ChooseTarget(point.Current, Hand[i]);
+
+					PlanStep step = new PlanStep(test.Play, this, point.Current.Involved, test.Target);
+					if (step.TestPlan(null)) {
+						Choices.Add(test);
+					}
+				}
+			}
+
+			// add side, fusion and multicasting plans here
+
+			if (Choices.Count == 0) { return; }
+			Sort.BubbleSort(Choices, Compare.SimNode);
+
+			// pull from the fringe
+			int pull = 0;
+			while (Choices.Count > 0 && pull < FringeSize) {
+				if (Choices[0].Value < 0) { break; }
+				point.AddDescendant(Choices[0]);
+				Choices.RemoveAt(0);
+				pull++;
+			}
+
+			for (int i = 0; i < point.Desc.Count; i++) {
+				GenPlan(point.Desc[i]);
+			}
+		}
+
+		/*public void GenPlan (List<BattleChar> Targets, BattleChar Self) {
 			// when we dont respond, accuracy goes up
 			if (Rand.Next(1, 101) > RespondRate) { TempAccuracy += 10; return; }
 			if (Hand.Count == 0) { return; }
@@ -284,8 +348,8 @@ namespace Card_Test {
 				TempAccuracy = 0;
 			
 			
-				/*TextUI.PrintFormatted(Deck);
-				TextUI.PrintFormatted(Hand);*/
+				*//*TextUI.PrintFormatted(Deck);
+				TextUI.PrintFormatted(Hand);*//*
 
 				// make sure that the plan does something
 				if (chosen.damageTotal != 0 || chosen.healingTotal != 0 || chosen.shields != 0) {
@@ -307,6 +371,31 @@ namespace Card_Test {
 					}
 				}
 			}
+		}*/
+
+		private SimNode ChooseTarget(FieldSim sim, Plannable plan) {
+			if (!plan.Targeting) { return new SimNode(sim, plan); }
+			List<CharSim> Targs;
+
+			if (plan.TargetType == 0) { // Anyone
+				Targs = sim.Total;
+			} else if (plan.TargetType == 1) { // Friendlies
+				Targs = sim.Friends;
+			} else { // Enemies
+				Targs = sim.Enemies;
+			}
+
+			List<SimNode> Nodes = new List<SimNode>();
+			int targetCount = Targs.Count;
+
+			for (int i = 0; i < targetCount; i++) {
+				Nodes.Add(new SimNode(sim, plan, Targs[i].Index));
+			}
+
+			if (Nodes.Count <= 0) { return new SimNode(sim, plan); }
+			Sort.BubbleSort(Nodes, Compare.SimNode);
+			
+			return Nodes[0];
 		}
 	}
 
@@ -333,7 +422,7 @@ namespace Card_Test {
 
 	public class SimNode {
 		public List<SimNode> Desc = new List<SimNode>();
-		public int Value = 0;
+		public int Value = 0, Target = -1;
 		public FieldSim Current;
 		public Plannable Play;
 		public bool Valid = true;
@@ -341,9 +430,19 @@ namespace Card_Test {
 		private SimNode Link = null;
 
 		public SimNode(SimNode parent, Plannable play, int target = -1) {
+			Target = target;
 			Play = play;
 			Link = parent;
 			Current = new FieldSim(Link.Current);
+			if (Play == null) { return; }
+			ValuePlay(Current.SimCard(Play.CardEquiv(), target));
+		}
+
+		public SimNode(FieldSim state, Plannable play, int target = -1) {
+			Target = target;
+			Play = play;
+			Current = new FieldSim(state);
+			if (Play == null) { return; }
 			ValuePlay(Current.SimCard(Play.CardEquiv(), target));
 		}
 
@@ -351,20 +450,55 @@ namespace Card_Test {
 			Desc.Add(new SimNode(this, play, target));
 		}
 
+		public void AddDescendant(SimNode node) {
+			node.Link = this;
+			Desc.Add(node);
+		}
+
 		private void ValuePlay(SimReport report) {
 			if (report == null) { return; }
-			// put value metrics here
+
+			bool Flip = false; // false means that damage is good
+			if (Target != -1 && Current.Friends[0].Side == Current.Total[Target].Side) { Flip = true; }
+
+			Value = 0;
+			// negative effects
+			Value += report.Damage * (Flip ? -1 : 1);
+			Value += report.Defeated * 200 * (Flip ? -1 : 1);
+
+			// positive effects
+			Value += report.Healing * (Flip ? 1 : -1);
+			Value += report.Drawn * 20 * (Flip ? 1 : -1);
+			Value += report.SGained * 40 * (Flip ? 1 : -1);
+
+			// Neutral Effects
+			Value += report.Summons * 100;
+			Value = (int) (Value * (Math.Max(report.TargetsAffected, 1) / 2.0));
+		}
+
+		// checks if the play has been used in this branch already
+		public bool CheckUsed(Plannable check) {
+			if (Play == check) { return true; }
+			if (Link == null) { return false; }
+			return Link.CheckUsed(check);
+		}
+
+		public void GenPlan(Character Caster) {
+			if (Link != null) { Link.GenPlan(Caster); }
+			if (Play != null) { Caster.Plan.PlanOrCast(null, Play, Current.Involved, Target); }
 		}
 	}
 
 	public class FieldSim {
+		public List<BattleChar> Involved;
 		public List<CharSim> Friends = new List<CharSim>();
 		public List<CharSim> Enemies = new List<CharSim>();
 		public List<CharSim> Total = new List<CharSim>();
 
 		private int TotalCount, FriendCount, EnemyCount;
 
-		public FieldSim (List<BattleChar> Involved, int FriendlySide) {
+		public FieldSim (List<BattleChar> involved, int FriendlySide) {
+			Involved = involved;
 			int invAmt = Involved.Count;
 			for (int i = 0; i < invAmt; i++) {
 				Character point = Involved[i].Unit;
@@ -397,6 +531,8 @@ namespace Card_Test {
 
 				Total.Add(sim);
 			}
+
+			Involved = copy.Involved;
 
 			TotalCount = Total.Count;
 			FriendCount = Friends.Count;
