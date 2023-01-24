@@ -466,14 +466,18 @@ namespace Card_Test {
 			Value += report.Damage * (Flip ? -1 : 1);
 			Value += report.Defeated * 200 * (Flip ? -1 : 1);
 
+			/*if (report.Drawn >= 1) {
+				TextUI.DummyParse("");
+			}*/
+
 			// positive effects
 			Value += report.Healing * (Flip ? 1 : -1);
-			Value += report.Drawn * 20 * (Flip ? 1 : -1);
+			Value += report.Drawn * 50 * (Target == -1 || !Flip ? 1 : -1);
 			Value += report.SGained * 40 * (Flip ? 1 : -1);
 
 			// Neutral Effects
 			Value += report.Summons * 100;
-			Value = (int) (Value * (Math.Max(report.TargetsAffected, 1) / 2.0));
+			Value = (int) (Value * Math.Max(report.TargetsAffected, 1));
 		}
 
 		// checks if the play has been used in this branch already
