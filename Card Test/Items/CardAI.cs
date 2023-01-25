@@ -30,7 +30,7 @@ namespace Card_Test {
 		public int MaxPlay;
 		public int PreferredTarget = -1;
 
-		public int FringeSize = 3;
+		public int FringeSize = 6;
 
 		public CardAI(string name, int maxhealth, int maxmana, TDeck deck = null, Drops drop = null, int respondrate = 100, int accuracy = 100, int maxplay = 1) : base (name, maxhealth, maxmana, deck) {
 			RespondRate = respondrate;
@@ -49,7 +49,17 @@ namespace Card_Test {
 		public CardAI(AIEntry tab) : this (tab.Name, tab.MaxHealth, tab.MaxMana, Reader.ReadDeck(tab.Deck), tab.Drop, tab.RespondRate, tab.Accuracy, tab.MaxPlay) { }
 
 		public void GenPlan(List<BattleChar> Targets, BattleChar Self) {
+			if (Global.Rand.Next(0, 100) > RespondRate) {
+				TempAccuracy += 10;
+				return;
+			}
+
 			FieldSim Point = new FieldSim(Targets, Self.Side);
+			Point.Mana = Mana;
+			Point.Side = SideCastCounters;
+			Point.Multi = MultiCastSlots;
+			Point.Fusion = FusionCounters;
+
 			SimNode Root = new SimNode(Point, null);
 
 			GenPlan(Root);
@@ -92,17 +102,19 @@ namespace Card_Test {
 			}
 
 			// add side, fusion and multicasting plans here
-
 			if (Choices.Count == 0) { return; }
 			Sort.BubbleSort(Choices, Compare.SimNode);
 
 			// pull from the fringe
 			int pull = 0;
 			while (Choices.Count > 0 && pull < FringeSize) {
-				if (Choices[0].Value < 0) { break; }
-				point.AddDescendant(Choices[0]);
+				if (Choices[0].Value <= 0) { break; }
+				if (point.CanAddDesc(Choices[0])) {
+					point.AddDescendant(Choices[0]);
+					pull++;
+				}
+
 				Choices.RemoveAt(0);
-				pull++;
 			}
 
 			for (int i = 0; i < point.Desc.Count; i++) {
@@ -399,7 +411,7 @@ namespace Card_Test {
 		}
 	}
 
-	public class Move {
+	/*public class Move {
 		public List<int> Cards = new List<int>();
 		public List<int> Targets = new List<int>();
 		public List<int> TargetEffects = new List<int>();
@@ -417,7 +429,7 @@ namespace Card_Test {
 			Target = target;
 			Value = value;
 		}
-	}
+	}*/
 
 
 	public class SimNode {
@@ -435,7 +447,7 @@ namespace Card_Test {
 			Link = parent;
 			Current = new FieldSim(Link.Current);
 			if (Play == null) { return; }
-			ValuePlay(Current.SimCard(Play.CardEquiv(), target));
+			ValuePlay(Current.SimCard(Play, target));
 		}
 
 		public SimNode(FieldSim state, Plannable play, int target = -1) {
@@ -443,7 +455,7 @@ namespace Card_Test {
 			Play = play;
 			Current = new FieldSim(state);
 			if (Play == null) { return; }
-			ValuePlay(Current.SimCard(Play.CardEquiv(), target));
+			ValuePlay(Current.SimCard(Play, target));
 		}
 
 		public void AddDescendant(Plannable play, int target = -1) {
@@ -453,6 +465,15 @@ namespace Card_Test {
 		public void AddDescendant(SimNode node) {
 			node.Link = this;
 			Desc.Add(node);
+		}
+
+		public bool CanAddDesc(SimNode node) {
+			node.Validate();
+			return node.Valid;
+		}
+
+		public void Validate() {
+			Valid = Current.Mana >= 0 && Current.Fusion >= 0 && Current.Side >= 0 && Current.Multi >= 0;
 		}
 
 		private void ValuePlay(SimReport report) {
@@ -478,6 +499,10 @@ namespace Card_Test {
 			// Neutral Effects
 			Value += report.Summons * 100;
 			Value = (int) (Value * Math.Max(report.TargetsAffected, 1));
+
+			/*if (Value == 0) {
+				TextUI.DummyParse("");
+			}*/
 		}
 
 		// checks if the play has been used in this branch already
@@ -500,6 +525,8 @@ namespace Card_Test {
 		public List<CharSim> Total = new List<CharSim>();
 
 		private int TotalCount, FriendCount, EnemyCount;
+
+		public int Mana = 0, Fusion = 0, Side = 0, Multi = 0;
 
 		public FieldSim (List<BattleChar> involved, int FriendlySide) {
 			Involved = involved;
@@ -541,11 +568,25 @@ namespace Card_Test {
 			TotalCount = Total.Count;
 			FriendCount = Friends.Count;
 			EnemyCount = Enemies.Count;
+
+			Mana = copy.Mana;
+			Fusion = copy.Fusion;
+			Side = copy.Side;
+			Multi = copy.Multi;
 		}
 
-		public SimReport SimCard (Card card, int target, bool Change = true) {
-			if (card == null) { return null; }
+		public SimReport SimCard (Plannable plan, int target, bool Change = true) {
+			if (plan == null) { return null; }
 			SimReport report = new SimReport();
+
+			Card card = plan.CardEquiv();
+
+			if (Change) {
+				Mana -= plan.ManaCost;
+				Fusion -= plan.FusionCost;
+				Side -= plan.SideCost;
+				Multi -= plan.MultiSlots;
+			}
 
 			// summons are not interactable the turn that they are summoned, so there is no reason to add them to the sim
 			if (card.Mod == Mods.Translate("summon")) {
@@ -563,7 +604,7 @@ namespace Card_Test {
 
 			report.Damage  = CalcAmount(Total[target], card.Damage, cardEffect);
 			report.Defeated += report.Damage >= Total[target].Health ? 1 : 0;
-			report.Healing = CalcAmount(Total[target], card.Damage, cardEffect, false);
+			report.Healing = CalcAmount(Total[target], card.Healing, cardEffect, false);
 
 			if (Change) { Total[target].Health += report.Healing - report.Damage; Total[target].Effect = cardEffect; }
 
@@ -574,7 +615,7 @@ namespace Card_Test {
 				for (int i = 0; i < TotalCount; i++) {
 					if (Total[i].Side == targeting && i != target) {
 						int tem = CalcAmount(Total[i], card.Damage, cardEffect) / 2;
-						int temh = CalcAmount(Total[i], card.Damage, cardEffect, false) / 2;
+						int temh = CalcAmount(Total[i], card.Healing, cardEffect, false) / 2;
 
 						report.Damage   += tem;
 						report.Defeated += tem >= Total[i].Health ? 1 : 0;

@@ -54,7 +54,7 @@ namespace Card_Test {
 			test.EditDeck();*/
 
 			// PackCreator.CreatePack();
-			DeckCreator.CreateDeck();
+			// DeckCreator.CreateDeck();
 			// GearCreator.CreateGear();
 
 			/*Writer.WriteGear(TGear.Generate(GearTable.Tango[2], null), "test");
@@ -75,9 +75,9 @@ namespace Card_Test {
 					TextUI.Prompt("What would you like to do?", CharacterMenu);
 				}
 
-				 Global.Run.Player.MaxFusion = 2;
-				 Global.Run.Player.MaxSide = 1;
-				 Global.Run.Player.MaxMulti = 1;
+				 // Global.Run.Player.MaxFusion = 2;
+				 // Global.Run.Player.MaxSide = 1;
+				 // Global.Run.Player.MaxMulti = 1;
 
 				// Global.Run.Player.Material = 10000;
 
