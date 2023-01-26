@@ -70,7 +70,7 @@ namespace Card_Test.Map.Rooms {
 				TextUI.PrintFormatted("gets dissolved into the cauldron\n");
 
 				MaterialAdded = 0;
-				TextUI.PrintFormatted("The colour of the cauldron shifts!");
+				TextUI.PrintFormatted("²The colour of the cauldron shifts!⁰");
 				CauldronState--;
 
 				TextUI.Wait();
@@ -110,9 +110,7 @@ namespace Card_Test.Map.Rooms {
 
 			} else {
 				// fail
-				Console.ForegroundColor = ConsoleColor.Red;
-				TextUI.PrintFormatted("\nSomething's wrong!\n");
-				Console.ResetColor();
+				TextUI.PrintFormatted("\n³Something's wrong!⁰\n");
 
 				int chosen = Global.Rand.Next(1, 101);
 
@@ -123,10 +121,10 @@ namespace Card_Test.Map.Rooms {
 					string healthb = Global.Run.Player.HealthToString();
 					Global.Run.Player.Health -= damage;
 					TextUI.PrintFormatted(Global.Run.Player.Name + " takes " + damage + " damage " + healthb + "->" + Global.Run.Player.HealthToString());
-					TextUI.PrintFormatted("The fire under the cauldron goes out");
+					TextUI.PrintFormatted("³The fire under the cauldron goes out⁰");
 				} else {
 					// grow cold
-					TextUI.PrintFormatted("The cauldron grows cold");
+					TextUI.PrintFormatted("³The cauldron grows cold⁰");
 					TextUI.PrintFormatted("All cards thrown in are lost\n");
 					int materialSalv = Global.Rand.Next(0, TotalAdded * 3 / 4);
 					TextUI.PrintFormatted(Global.Run.Player.Name + " was able to salvage " + materialSalv + " Material back from the cauldron");
@@ -141,7 +139,7 @@ namespace Card_Test.Map.Rooms {
 
 			if (!rebrew || !success) {
 				Symbol = "⁴σ⁰";
-				ExtraDesc = "\nThe fire under it has gone out";
+				ExtraDesc = "\n³The fire under it has gone out⁰";
 				Extinguished = true;
 
 				Leave(null);
@@ -268,7 +266,7 @@ namespace Card_Test.Map.Rooms {
 			Console.WriteLine();
 
 			if (colourshift) {
-				TextUI.PrintFormatted("The colour of the cauldron shifts!");
+				TextUI.PrintFormatted("²The colour of the cauldron shifts!⁰");
 				TextUI.PrintFormatted(Global.Run.Player.Name + " stops adding material to the cauldron");
 				TextUI.PrintFormatted(amt + " Material is left over");
 				Global.Run.Player.Material += amt;

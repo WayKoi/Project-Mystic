@@ -29,12 +29,10 @@ namespace Card_Test.Map.Rooms {
 				if (uses + 1 == max) {
 					ExtraDesc = "\nThe fire seems to have gone out";
 					Symbol = "⁴μ⁰";
-					Console.ForegroundColor = ConsoleColor.Red;
-					TextUI.PrintFormatted("The fire has gone out!");
-					Console.ResetColor();
+					TextUI.PrintFormatted("³The fire has gone out!⁰");
 				}
 			} else {
-				TextUI.PrintFormatted("The fire has gone out!");
+				TextUI.PrintFormatted("³The fire has gone out!⁰");
 			}
 
 			TextUI.PrintFormatted("Press enter to continue");

@@ -13,7 +13,7 @@ namespace Card_Test.Tables {
 
 			new CardType(0, "Time",   "Tme", new int[] { 1 }, new int[] { 0, 0, 1 }, new double[] { 0, 0, 0, 0 }, 0, 0, Time, true, null, null, new int[] { 1, 4 }),
 			new CardType(0, "Vision", "Vis", new int[] { 1 }, new int[] { 0, 0, 2 }, new double[] { 0, 0, 0, 0 }, 0, 0, Vision, true, null, null, new int[] { 0, 0 }),
-			new CardType(0, "Shield", "Shl", new int[] { 1 }, new int[] { 0, 0, 1 }, new double[] { 0, 0, 0, 0 }, 0, 0, Shield, false, null, null, new int[] { 0, 4 }),
+			new CardType(0, "Shield", "Shl", new int[] { 1 }, new int[] { 0, 0, 1 }, new double[] { 0, 0, 0, 0 }, 0, 0, Shield, false, null, null, new int[] { 0, 3 }),
 
 			new CardType(0, "Physical", "Phy", new int[] { 1 }, new int[] { 10, 0, 0 }, new double[] { 1.5, 0, 0, 0 }),
 
@@ -202,10 +202,13 @@ namespace Card_Test.Tables {
 		}
 
 		public static void Shield (Card cast, List<BattleChar> targets, int specific, PlayReport report) {
-			double[] mits = { 0.1, 0.25, 0.5, 0.75, 1 };
+			double[] mits = { 0.5, 1 };
+			int[] amt = { 1, 1, 2, 3 };
 			// TextUI.PrintFormatted(targets[specific].Unit.Name + " gets a shield");
-			report.Steps.Add(new ReportStep(targets[specific], 0, 0, 0, 1));
-			targets[specific].Shields.Add(new Shield(mits[(int) Math.Min(cast.Tier, 4)]));
+			report.Steps.Add(new ReportStep(targets[specific], 0, 0, 0, amt[cast.Tier]));
+			for (int i = 0; i < amt[cast.Tier]; i++) {
+				targets[specific].Shields.Add(new Shield(mits[(int)Math.Min(cast.Tier, 1)]));
+			}
 		}
 	}
 
