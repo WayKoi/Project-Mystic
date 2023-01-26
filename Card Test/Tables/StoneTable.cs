@@ -354,7 +354,9 @@ namespace Card_Test.Tables {
 		public override void Cancel(Character Caster) { Effect.UsedThisTurn = false; }
 		public override void Plan(Character Caster) { Effect.UsedThisTurn = true; }
 		public override void UpdateValues(Character caster) {
-			// add later
+			if (Effect.Cost == -1) { // -1 means that it consumes remaining mana
+				ManaCost = Math.Max(caster.Mana, 1);
+			}
 		}
 		public override bool Play(Character Caster, List<BattleChar> Targets, int Specific, PlayReport report = null) {
 			bool print = report == null;

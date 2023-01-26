@@ -182,7 +182,8 @@ namespace Card_Test.Items {
         public override bool Play(Character Caster, List<BattleChar> Targets, int Specific, PlayReport report = null) {
 			BattleChar BattleCaster = BattleUtil.FindCharacter(Targets, Caster);
 
-			int TargetSide = (TargetType == 0 || TargetType == 2 ? (BattleCaster.Side + 1) % 2 : BattleCaster.Side);
+			// if targettype == 0 and healing is > 0 then we want to heal friendlies else target enemies
+			int TargetSide = (((TargetType == 0 && Multi.Healing <= 0) || TargetType == 2) ? (BattleCaster.Side + 1) % 2 : BattleCaster.Side);
 			List<int> Targs = BattleUtil.GetFromSide(TargetSide, Targets);
 			for (int i = 0; i < Targs.Count; i++) {
 				if (!Targets[Targs[i]].Unit.HasHealth()) {

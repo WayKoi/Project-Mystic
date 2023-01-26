@@ -22,7 +22,7 @@ namespace Card_Test.Map.Rooms {
 				TextUI.PrintFormatted("You" + (Global.Run.Players.Count > 1 ? ", and your party" : "") + " sit by the campfire");
 
 				foreach (Character unit in Global.Run.Players) {
-					int amt = unit.Heal((int)(unit.MaxHealth / 100.0 * healamt));
+					int amt = unit.Heal((int)(Math.Min(unit.MaxHealth, 160) / 100.0 * healamt));
 					TextUI.PrintFormatted(unit.Name + " Heals " + amt + " " + unit.HealthToString());
 				}
 
