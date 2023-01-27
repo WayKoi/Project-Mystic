@@ -11,7 +11,7 @@ namespace Card_Test.Map {
         public bool GameRunning = true;
 
         private FloorGen[] FloorPlans = {
-            new FloorGen(
+            new FloorGen("Overgrowth",
                 new int[] { 4, 3, 4, 2, 2 },
                 new int[] { 1, 40 },
                 new int[] { 10, 1 },
@@ -21,13 +21,13 @@ namespace Card_Test.Map {
                 new int[] { 0, 0, 0 },
                 new int[] { 1, 2 },
                 BossTable.Beetle,
-                EventTable.BTableA/*,
+                BattleTable.Overgrowth/*,
 				null,
 				null,
 				new TRoom[] { new TRoom(7), new TRoom(7) }*/
 			),
 
-            new FloorGen(
+            new FloorGen("Sandy Caverns",
                 new int[] { 7, 5, 5, 4, 2 },
                 new int[] { 1, 40 },
                 new int[] { 50, 1 },
@@ -37,10 +37,10 @@ namespace Card_Test.Map {
                 new int[] { 0, 0, 0 },
                 new int[] { 2, 3 },
                 BossTable.Salamander,
-                EventTable.BTableB
+                BattleTable.SandyCaverns
             ),
 
-            new FloorGen(
+            new FloorGen("Ivory Halls",
                 new int[] { 7, 6, 6, 4, 3 },
                 new int[] { 2, 60 },
                 new int[] { 50, 1 },
@@ -50,10 +50,10 @@ namespace Card_Test.Map {
                 new int[] { 1, 0, 0 },
                 new int[] { 3, 4 },
                 BossTable.Mannequin,
-                EventTable.BTableC
+                BattleTable.IvoryHalls
             ),
 
-            new FloorGen(
+            new FloorGen("Catacombs",
                 new int[] { 7, 7, 7, 4, 3 },
                 new int[] { 2, 60 },
                 new int[] { 50, 1 },
@@ -63,10 +63,10 @@ namespace Card_Test.Map {
                 new int[] { 0, 1, 1 },
                 new int[] { 4, 4 },
                 BossTable.Demon,
-                EventTable.BTableD
+                BattleTable.Catacombs
             ),
 
-            new FloorGen(
+            new FloorGen("Crystal Hollow",
                 new int[] { 7, 7, 8, 5, 3 },
                 new int[] { 2, 60 },
                 new int[] { 50, 1 },
@@ -76,10 +76,10 @@ namespace Card_Test.Map {
                 new int[] { 2, 0, 0 },
                 new int[] { 5, 5 },
                 BossTable.Warlock,
-                EventTable.BTableE
+                BattleTable.CrystalHollow
             ),
             // Temp Floor 6
-            new FloorGen(
+            new FloorGen("Test",
                 new int[] { 7, 7, 8, 5, 3 },
                 new int[] { 2, 60 },
                 new int[] { 50, 1 },
@@ -89,7 +89,7 @@ namespace Card_Test.Map {
                 new int[] { 0, 5, 5 },
                 new int[] { 0, 0 },
                 BossTable.Warlock,
-                EventTable.BTableE
+                BattleTable.CrystalHollow
             )
         };
 
@@ -217,7 +217,7 @@ namespace Card_Test.Map {
         public void PrintScene() {
 			Console.Clear();
 			// TextUI.PrintFormatted(new string(' ', Floors[FloorNum].Width * 3 + 7) + "  W");
-			TextUI.PrintFormatted("Floor " + (FloorNum + 1));
+			TextUI.PrintFormatted(Floors[FloorNum].Name);
 			// TextUI.PrintFormatted(new string(' ', Floors[FloorNum].Width * 3 + 7) + "  S\n");
 			TextUI.PrintFormatted(Floors[FloorNum].GetCurrentRoomDetails());
 			// Ω

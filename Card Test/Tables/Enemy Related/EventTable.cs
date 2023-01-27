@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Text;
 
 namespace Card_Test.Tables {
-    public static class EventTable {
+    /*public static class EventTable {
 
         // table to pull from, min amount of enemies, max amount of enemies
         public static GameEvent[] BTableA = {
@@ -109,5 +109,5 @@ namespace Card_Test.Tables {
         public void RunAction() {
             EventAction(Data);
         }
-    }
+    }*/
 }

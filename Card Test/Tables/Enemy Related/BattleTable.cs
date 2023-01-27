@@ -1,111 +1,137 @@
-﻿using System;
+﻿using Card_Test.Base;
+using Card_Test.Tables;
+using System;
 using System.Collections.Generic;
 using System.Text;
 
 namespace Card_Test.Tables {
 	public static class BattleTable {
-		// other vars
-		private static Random Rand = new Random();
-
-		// tables 
-		public static BattleEntry[] TableA = { 
-			new BattleEntry(EnemyTable.Rat, 15),
-			new BattleEntry(EnemyTable.Wolf, 55),
-			new BattleEntry(EnemyTable.Spider, 30)
+		
+		public static BattlePool[] Overgrowth = {
+			new BattlePool(1, 2, new BTableEntry[] {
+				new BTableEntry(EnemyTable.Rat, 15, 1),
+				new BTableEntry(EnemyTable.Wolf, 55),
+				new BTableEntry(EnemyTable.Spider, 30, 1)
+			}, 1)
 		};
 
-		public static BattleEntry[] TableB = {
-			new BattleEntry(EnemyTable.Snake, 50),
-			new BattleEntry(EnemyTable.MudMonster, 35),
-			new BattleEntry(EnemyTable.Scorpion, 15)
+		public static BattlePool[] SandyCaverns = {
+			new BattlePool(1, 2, new BTableEntry[] {
+				new BTableEntry(EnemyTable.Snake, 50),
+				new BTableEntry(EnemyTable.Scorpion, 15)
+			}, 9),
+
+			new BattlePool(1, 1, new BTableEntry[] {
+				new BTableEntry(EnemyTable.SandWizard, 1)
+			}, 1)
 		};
 
-		public static BattleEntry[] TableBA = {
-			new BattleEntry(EnemyTable.SandWizard, 100)
+		public static BattlePool[] IvoryHalls = {
+			new BattlePool(1, 2, new BTableEntry[] {
+				new BTableEntry(EnemyTable.MHead, 10, 1),
+				new BTableEntry(EnemyTable.MLeg, 45),
+				new BTableEntry(EnemyTable.MArm, 45)
+			}, 2),
+
+			new BattlePool(2, 3, new BTableEntry[] {
+				new BTableEntry(EnemyTable.MHead, 5, 1),
+				new BTableEntry(EnemyTable.MLeg, 45),
+				new BTableEntry(EnemyTable.MArm, 45)
+			}, 7),
+
+			new BattlePool(1, 1, new BTableEntry[] {
+				new BTableEntry(EnemyTable.BuzzSaw, 1)
+			}, 1)
 		};
 
-		public static BattleEntry[] TableC = {
-			new BattleEntry(EnemyTable.MHead, 10),
-			new BattleEntry(EnemyTable.MLeg, 45),
-			new BattleEntry(EnemyTable.MArm, 45)
+		public static BattlePool[] Catacombs = {
+			new BattlePool(1, 2, new BTableEntry[] {
+				new BTableEntry(EnemyTable.Zombie, 20, 1),
+				new BTableEntry(EnemyTable.Skeleton, 50),
+				new BTableEntry(EnemyTable.Banshee, 5, 1),
+				new BTableEntry(EnemyTable.Poltergeist, 5, 1),
+				new BTableEntry(EnemyTable.BloodBat, 20, 1)
+			}, 7),
+
+			new BattlePool(2, 3, new BTableEntry[] {
+				new BTableEntry(EnemyTable.Zombie, 20, 1),
+				new BTableEntry(EnemyTable.Skeleton, 60),
+				new BTableEntry(EnemyTable.BloodBat, 20, 1)
+			}, 2),
+
+			new BattlePool(1, 1, new BTableEntry[] {
+				new BTableEntry(EnemyTable.Vampire, 1)
+			}, 1)
 		};
 
-		public static BattleEntry[] TableCA = {
-			new BattleEntry(EnemyTable.BuzzSaw, 100)
+		public static BattlePool[] CrystalHollow = {
+			new BattlePool(1, 1, new BTableEntry[] {
+				new BTableEntry(EnemyTable.LDragon, 50),
+				new BTableEntry(EnemyTable.ACrystal, 50)
+			}, 6),
+
+			new BattlePool(3, 3, new BTableEntry[] {
+				new BTableEntry(EnemyTable.Imp, 1)
+			}, 7),
+
+			new BattlePool(2, 3, new BTableEntry[] {
+				new BTableEntry(EnemyTable.MGolem, 1)
+			}, 6),
+
+			new BattlePool(1, 1, new BTableEntry[] {
+				new BTableEntry(EnemyTable.Mimic, 1)
+			}, 1)
 		};
-
-		public static BattleEntry[] TableD = {
-			new BattleEntry(EnemyTable.Zombie, 50),
-			new BattleEntry(EnemyTable.Skeleton, 15),
-			new BattleEntry(EnemyTable.Banshee, 5),
-			new BattleEntry(EnemyTable.Poltergeist, 5),
-			new BattleEntry(EnemyTable.BloodBat, 25)
-		};
-
-		public static BattleEntry[] TableDA = {
-			new BattleEntry(EnemyTable.Vampire, 100)
-		};
-
-		public static BattleEntry[] TableEA = {
-			new BattleEntry(EnemyTable.LDragon, 50),
-			new BattleEntry(EnemyTable.ACrystal, 50)
-		};
-
-		public static BattleEntry[] TableEB = {
-			new BattleEntry(EnemyTable.Imp, 100)
-		};
-
-		public static BattleEntry[] TableEC = {
-			new BattleEntry(EnemyTable.MGolem, 100)
-		};
-
-		public static BattleEntry[] TableED = {
-			new BattleEntry(EnemyTable.Mimic, 100)
-		};
-
-
-
-		public static BattleEntry[] GetTable(int floor) {
-			switch (floor) {
-				case 0: return TableA;
-				case 1: return TableB;
-				case 2: return TableBA;
-				case 3: return TableC;
-				case 4: return TableCA;
-				case 5: return TableD;
-				case 6: return TableDA;
-				case 7: return TableEA;
-				case 8: return TableEB;
-				case 9: return TableEC;
-				case 10: return TableED;
-			}
-
-			return null;
-		}
-
-		// methods
-		public static AIEntry GetEnemy (BattleEntry[] Choices) {
-			int chosen = Rand.Next(1, 101);
-
-			foreach (BattleEntry entry in Choices) {
-				if (chosen <= entry.Chance) {
-					return entry.Enemy;
-				}
-				chosen -= entry.Chance;
-			}
-
-			return null;
-		}
-
 	}
 
-	public class BattleEntry {
+	public class BTableEntry : Rollable {
 		public AIEntry Enemy;
-		public int Chance;
 
-		public BattleEntry(AIEntry enemy, int chance) {
+		public BTableEntry(AIEntry enemy, int chance, int Maxrolls = 0) : base (chance, Maxrolls) {
 			Enemy = enemy;
-			Chance = chance;
+		}
+
+		public CardAI Generate () {
+			return new CardAI(Enemy);
+		}
+	}
+
+	public class BattlePool : Rollable {
+		public BTableEntry[] Pool;
+		public int Min, Max;
+
+		public BattlePool (int min, int max, BTableEntry[] pool, int chance) : base (chance) {
+			Min = min;
+			Max = max;
+			Pool = pool;
+		}
+
+		public List<CardAI> RollPool () {
+			List<CardAI> ret = new List<CardAI>();
+
+			int amt = Global.Rand.Next(Min, Max + 1);
+			List<Rollable> rolled = Rollable.Roll(Pool, amt);
+			while (rolled.Count > 0) {
+				ret.Add((rolled[0] as BTableEntry).Generate());
+				rolled.RemoveAt(0);
+			}
+
+			for (int i = 0; i < Pool.Length; i++) {
+				Pool[i].ResetCount();
+			}
+
+			return ret;
+		}
+
+		public void RunBattle () {
+			List<CardAI> chosen = RollPool();
+
+			Battle batt = new Battle(Global.Run.Players.ToArray(), chosen.ToArray());
+			bool result = batt.Run();
+
+			if (!result) {
+				Global.Run.TenFloor.EndGame();
+			}
 		}
 	}
 }

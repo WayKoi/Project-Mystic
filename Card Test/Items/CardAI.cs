@@ -142,7 +142,9 @@ namespace Card_Test {
 			int targetCount = Targs.Count;
 
 			for (int i = 0; i < targetCount; i++) {
-				Nodes.Add(new SimNode(sim, plan, Targs[i].Index));
+				if (Targs[i].Health > 0) {
+					Nodes.Add(new SimNode(sim, plan, Targs[i].Index));
+				}
 			}
 
 			if (Nodes.Count <= 0) { return new SimNode(sim, plan); }
@@ -202,6 +204,7 @@ namespace Card_Test {
 
 		private void ValuePlay(SimReport report) {
 			if (report == null) { return; }
+			if (Target != -1 && Current.Total[Target].Health <= 0) { return; }
 
 			bool Flip = false; // false means that damage is good
 			if (Target != -1 && Current.Friends[0].Side == Current.Total[Target].Side) { Flip = true; }
@@ -212,13 +215,17 @@ namespace Card_Test {
 			Value += report.Defeated * 200 * (Flip ? -1 : 1);
 
 			// positive effects
-			Value += report.Healing * (Flip ? 1 : -1);
+			Value += (int) (report.Healing * (0.40 + (Current.Total[Target].Health / (double) Current.Total[Target].MaxHealth))) * (Flip ? 1 : -1);
 			Value += report.Drawn * 50 * (Target == -1 || !Flip ? 1 : -1);
-			Value += report.SGained * 40 * (Flip ? 1 : -1);
+			Value += report.SGained * Math.Min(Current.Total[Target].MaxHealth - Current.Total[Target].Health, 60) * (Flip ? 1 : -1);
 
 			// Neutral Effects
 			Value += report.Summons * 100;
 			Value = (int) (Value * Math.Max(report.TargetsAffected, 1));
+
+			if (Value == 0) {	
+				return;
+			}
 		}
 
 		// checks if the play has been used in this branch already
@@ -319,10 +326,10 @@ namespace Card_Test {
 			int cardEffect = card.Element.GetEffect();
 
 			report.Damage  = CalcAmount(Total[target], card.Damage, cardEffect);
-			report.Defeated += report.Damage >= Total[target].Health ? 1 : 0;
+			report.Defeated += report.Damage >= Total[target].Health && Total[target].Health != 0 ? 1 : 0;
 			report.Healing = CalcAmount(Total[target], card.Healing, cardEffect, false);
 
-			if (Change) { Total[target].Health += report.Healing - report.Damage; Total[target].Effect = cardEffect; }
+			if (Change) { Total[target].HealthChange += report.Healing - report.Damage; Total[target].Effect = cardEffect; }
 
 			report.TargetsAffected = 1;
 
@@ -381,18 +388,23 @@ namespace Card_Test {
 	}
 
 	public class CharSim {
-		public int Index, Health, MaxHealth, Effect, Side, Shields;
+		public int Index, Health, MaxHealth, Effect, Side, Shields, HealthChange = 0;
 
-		public CharSim (int index, int health, int maxhp, int eff, int side, int shields) {
+		public CharSim (int index, int health, int maxhp, int eff, int side, int shields, int healthchange = 0) {
 			Index = index;
 			Health = health;
+
+			HealthChange = healthchange;
+			Health += HealthChange;
+			HealthChange = 0;
+
 			MaxHealth = maxhp;
 			Effect = eff;
 			Side = side;
 			Shields = shields;
 		}
 
-		public CharSim (CharSim copy) : this (copy.Index, copy.Health, copy.MaxHealth, copy.Effect, copy.Side, copy.Shields) { }
+		public CharSim (CharSim copy) : this (copy.Index, copy.Health, copy.MaxHealth, copy.Effect, copy.Side, copy.Shields, copy.HealthChange) {  }
 	}
 
 	public class SimReport {

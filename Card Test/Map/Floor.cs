@@ -16,9 +16,13 @@ namespace Card_Test.Map {
 
         private Boss BossBattle;
 
+        public string Name;
+
         public Floor (FloorGen gen, bool print = false) {
             Gen = gen;
             
+            Name = Gen.Name;
+
             Width = gen.Width;
             Height = gen.Height;
             Magnetic = gen.Magnetic;
@@ -428,13 +432,16 @@ namespace Card_Test.Map {
 
         public Boss Boss;
         public TRoom[] Prepend;
-        public GameEvent[] Battles;
+        public BattlePool[] Battles;
         // BattleData = # min, # max
         public int[] BattleData;
 
         public Action<int, int> StartRoom, EndRoom;
 
-        public FloorGen(int[] Gen, int[] RoomVals, int[] Chances, int[] roomamt, int[] shopTypes, int[] shopweights, int[] specialrooms, int[] battleData, Boss boss = null, GameEvent[] battles = null, Action<int, int> startRoom = null, Action<int, int> endRoom = null, TRoom[] prepend = null) {
+        public string Name;
+
+        public FloorGen(string name, int[] Gen, int[] RoomVals, int[] Chances, int[] roomamt, int[] shopTypes, int[] shopweights, int[] specialrooms, int[] battleData, Boss boss = null, BattlePool[] battles = null, Action<int, int> startRoom = null, Action<int, int> endRoom = null, TRoom[] prepend = null) {
+            Name = name;    
             Width = Gen[0];
             Height = Gen[1];
             BossLen = Gen[2];
