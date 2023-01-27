@@ -64,6 +64,10 @@ namespace Card_Test {
 			Resistances[ind] += change;
 		}
 
+		public void ChangeResistance(KeyPair pair) {
+			ChangeResistance(BaseTypes.Translate(pair.Name), pair.Amount);
+		}
+
 		public void SetAffinity (int ind, int value) {
 			if (ind > Affinity.Count || ind < 0) { return; }
 			Affinity[ind] = value;
@@ -72,6 +76,10 @@ namespace Card_Test {
 		public void ChangeAffinity (int ind, int change) {
 			if (ind > Affinity.Count || ind < 0) { return; }
 			Affinity[ind] += change;
+		}
+
+		public void ChangeAffinity(KeyPair pair) {
+			ChangeAffinity(BaseTypes.Translate(pair.Name), pair.Amount);
 		}
 
 		public virtual double GetAffinity (CardType type) {

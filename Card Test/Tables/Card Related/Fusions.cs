@@ -152,8 +152,8 @@ namespace Card_Test.Tables {
 		};
 
 		public static ModFusion[] Mods = {
-			new ModFusion(1, 1, 2),
-			new ModFusion(3, -1, 3)
+			new ModFusion(SubMods.Translate("jumping"), SubMods.Translate("jumping"), SubMods.Translate("aoe")),
+			new ModFusion(SubMods.Translate("summon"), -1, SubMods.Translate("summon"))
 		};
 
 		private static void TimeSubFusion(Card A, Card B, Card Result) {

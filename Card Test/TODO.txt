@@ -1,6 +1,4 @@
 ﻿
-Remake the enemy choosing system and remove the event system
-
 Add rare rooms
 Make alternate floors possible
 Travelling merchant

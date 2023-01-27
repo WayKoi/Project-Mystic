@@ -436,11 +436,11 @@ namespace Card_Test.Map {
         // BattleData = # min, # max
         public int[] BattleData;
 
-        public Action<int, int> StartRoom, EndRoom;
+        public Action<int, int> StartRoom = null, EndRoom = null;
 
         public string Name;
 
-        public FloorGen(string name, int[] Gen, int[] RoomVals, int[] Chances, int[] roomamt, int[] shopTypes, int[] shopweights, int[] specialrooms, int[] battleData, Boss boss = null, BattlePool[] battles = null, Action<int, int> startRoom = null, Action<int, int> endRoom = null, TRoom[] prepend = null) {
+        public FloorGen(string name, int[] Gen, int[] RoomVals, int[] Chances, int[] roomamt, int[] shopTypes, int[] shopweights, int[] specialrooms, int[] battleData, Boss boss = null, BattlePool[] battles = null, TRoom[] prepend = null) {
             Name = name;    
             Width = Gen[0];
             Height = Gen[1];
@@ -464,9 +464,6 @@ namespace Card_Test.Map {
             Battles = battles;
 
             Prepend = prepend;
-
-            StartRoom = startRoom;
-            EndRoom = endRoom;
         }
     }
 }

@@ -8,21 +8,6 @@ using Sorting;
 
 namespace Card_Test {
 	public class CardAI : Character {
-
-		// simulate the field
-		// give all cards in the hand a value, choose targets immediately
-		// choose an amount of them to simulate and continue down that path
-		// at each step re calc the values of the cards
-		// repeat until out of possible plays (out of mana, no more cards, hit maxplay)
-		// collect all branches of the trees
-		// order by value
-		// apply the accuarcy to them
-		// choose top move left
-
-
-
-
-
 		// this class is the AI that plays as the enemy
 		private double RespondRate, TempResponse = 0; // how often they actually play on their turn
 		private double Accuracy, TempAccuracy = 0; // how accurate their plays are
@@ -31,6 +16,8 @@ namespace Card_Test {
 		public int PreferredTarget = -1;
 
 		public int FringeSize = 6;
+
+		private List<Plannable> Possible; 
 
 		public CardAI(string name, int maxhealth, int maxmana, TDeck deck = null, Drops drop = null, int respondrate = 100, int accuracy = 100, int maxplay = 1) : base (name, maxhealth, maxmana, deck) {
 			RespondRate = respondrate;
@@ -54,6 +41,14 @@ namespace Card_Test {
 				TempResponse += 10;
 				return;
 			}
+
+			Possible = new List<Plannable>();
+
+			for (int i = 0; i < Hand.Count; i++) {
+				Possible.Add(Hand[i]);
+			}
+
+			// Add logic for planning fusions and sides and multis here
 
 			FieldSim Point = new FieldSim(Targets, Self.Side);
 			Point.Mana = Mana;
@@ -91,12 +86,12 @@ namespace Card_Test {
 
 		private void GenPlan(SimNode point) {
 			if (point.Depth >= MaxPlay) { return; }
-			int handsize = Hand.Count;
+			int possibleCount = Possible.Count;
 			List<SimNode> Choices = new List<SimNode>();
 
-			for (int i = 0; i < handsize; i++) {
-				if (!point.CheckUsed(Hand[i])) {
-					SimNode test = ChooseTarget(point.Current, Hand[i]);
+			for (int i = 0; i < possibleCount; i++) {
+				if (!point.CheckUsed(Possible[i])) {
+					SimNode test = ChooseTarget(point.Current, Possible[i]);
 
 					PlanStep step = new PlanStep(test.Play, this, point.Current.Involved, test.Target);
 					if (step.TestPlan(null)) {

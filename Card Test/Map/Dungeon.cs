@@ -217,7 +217,7 @@ namespace Card_Test.Map {
         public void PrintScene() {
 			Console.Clear();
 			// TextUI.PrintFormatted(new string(' ', Floors[FloorNum].Width * 3 + 7) + "  W");
-			TextUI.PrintFormatted(Floors[FloorNum].Name);
+			TextUI.PrintFormatted("\n\t" + Floors[FloorNum].Name + "\n");
 			// TextUI.PrintFormatted(new string(' ', Floors[FloorNum].Width * 3 + 7) + "  S\n");
 			TextUI.PrintFormatted(Floors[FloorNum].GetCurrentRoomDetails());
 			// Ω

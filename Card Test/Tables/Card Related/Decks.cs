@@ -276,7 +276,7 @@ namespace Card_Test.Tables {
 			if (data[0] <= 0 || data[0] > Content.Count) { return false; }
 			data[0]--;
 
-			TextUI.PrintFormatted("Removed\n" + Content[data[0]] + "\nFrom the deck");
+			// TextUI.PrintFormatted("Removed\n" + Content[data[0]] + "\nFrom the deck");
 
 			Trunk.Add(Content[data[0]]);
 			Content.RemoveAt(data[0]);
@@ -284,7 +284,7 @@ namespace Card_Test.Tables {
 			Sort.BubbleSort(Content, Compare.Card);
 			Sort.BubbleSort(Trunk, Compare.Card);
 
-			TextUI.Wait();
+			// TextUI.Wait();
 
 			return true;
 		}

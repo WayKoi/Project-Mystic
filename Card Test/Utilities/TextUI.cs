@@ -95,7 +95,9 @@ namespace Card_Test {
                     }
                 }
 
-                if (askedinfo) {
+                if (chop[0].ToLower().Equals("!")) {
+                    finished = true;
+                } else if (askedinfo) {
                     PrintInfo(items);
                 } else {
                     bool founditem = false;
