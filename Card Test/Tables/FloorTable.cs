@@ -1,4 +1,5 @@
-﻿using Card_Test.Map;
+﻿using Card_Test.Base;
+using Card_Test.Map;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -36,7 +37,7 @@ namespace Card_Test.Tables {
         );
 
         public static FloorGen CrystalHollow = new FloorGen("Crystal Hollow", 4,
-            9, 9, 8, 5, 3,
+            10, 7, 8, 5, 3,
             new RoomGen(1, 1, 4, 5, new int[] { 0, 0, 0 }, new int[] { 1, 2 }),
             BossTable.Warlock,
             BattleTable.CrystalHollow,
@@ -50,5 +51,68 @@ namespace Card_Test.Tables {
             BossTable.Warlock,
             BattleTable.CrystalHollow
         );
-	}
+            
+        // ------------------------------------------------------------------------------------------------------
+        //  Pools
+        // ------------------------------------------------------------------------------------------------------
+
+        public static FloorPool TierZero = new FloorPool(
+            new FPoolEntry[] {
+                new FPoolEntry(OverGrowth, 1)
+            }
+        );
+
+        public static FloorPool TierOne = new FloorPool(
+            new FPoolEntry[] {
+                new FPoolEntry(SandyCaverns, 1)
+            }
+        );
+
+        public static FloorPool TierTwo = new FloorPool(
+            new FPoolEntry[] {
+                new FPoolEntry(IvoryHalls, 1)
+            }
+        );
+
+        public static FloorPool TierThree = new FloorPool(
+            new FPoolEntry[] {
+                new FPoolEntry(Catacombs, 1)
+            }
+        );
+
+        public static FloorPool TierFour = new FloorPool(
+            new FPoolEntry[] {
+                new FPoolEntry(CrystalHollow, 1)
+            }
+        );
+
+        public static FloorPool TierFive = new FloorPool(
+            new FPoolEntry[] {
+                new FPoolEntry(Testing, 1)
+            }
+        );
+
+    }
+
+    public class FloorPool {
+        public FPoolEntry[] Entries;
+
+        public FloorPool (FPoolEntry[] entries) {
+            Entries = entries;
+        }
+
+        public FloorGen Roll () {
+            List<Rollable> rolled = Rollable.Roll(Entries, 1);
+            if (rolled.Count == 0) { return null; }
+            return (rolled[0] as FPoolEntry).Gen;
+        }
+    }
+
+    public class FPoolEntry : Rollable {
+        public FloorGen Gen;
+
+        public FPoolEntry(FloorGen gen, int chance) : base (chance) {
+            Gen = gen;
+        }
+    }
 }

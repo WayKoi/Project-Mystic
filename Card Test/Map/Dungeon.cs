@@ -6,17 +6,18 @@ using Card_Test.Tables;
 namespace Card_Test.Map {
     public class Dungeon {
         public List<Floor> Floors = new List<Floor>();
-        private int FloorNum = 0;
         private MenuItem[] MoveMenu;
         public bool GameRunning = true;
 
-        private FloorGen[] FloorPlans = {
-            FloorTable.OverGrowth,
-            FloorTable.SandyCaverns,
-            FloorTable.IvoryHalls,
-            FloorTable.Catacombs,
-            FloorTable.CrystalHollow,
-            FloorTable.Testing
+        private Floor CurrentFloor = null;
+
+        private FloorPool[] FloorPools = {
+            FloorTable.TierZero,
+            FloorTable.TierOne,
+            FloorTable.TierTwo,
+            FloorTable.TierThree,
+            FloorTable.TierFour,
+            FloorTable.TierFive
         };
 
         public void Init() {
@@ -31,13 +32,21 @@ namespace Card_Test.Map {
                 new MenuItem(new string[] { "Reveal" }, RevealFloor, ParseMove, null)
             };
 
-			for (int i = 0; i < FloorPlans.Length; i++) {
-                FloorPlans[i].StartRoom = MoveUp;
-                FloorPlans[i].EndRoom = MoveDown;
+			for (int i = 0; i < FloorPools.Length; i++) {
+                FloorGen gen = FloorPools[i].Roll();
+                Floor add = new Floor(gen);
 
-                Floor add = new Floor(FloorPlans[i]);
+                add.Link = this;
+
+                if (i != 0) {
+                    add.ChangeUpLink(Floors[i - 1]);
+                    Floors[i - 1].ChangeDownLink(add);
+                }
+
 				Floors.Add(add);
 			}
+
+            CurrentFloor = Floors[0];
 		}
 
         public bool EditDeck (int[] dum) {
@@ -57,7 +66,7 @@ namespace Card_Test.Map {
         }
 
         public bool RevealFloor(int[] dum) {
-			Floors[FloorNum].RevealFloor();
+            CurrentFloor.RevealFloor();
 			TextUI.PrintFormatted("You cheat and reveal the whole map, press enter to continue");
 			Console.ReadLine();
 
@@ -65,23 +74,24 @@ namespace Card_Test.Map {
 		}
 
         public bool SkipTo(int[] to) {
-            if (to.Length < 1 || to[0] < 1 || to[0] > Floors.Count) { return false; }
-            FloorNum = to[0] - 1;
-            TextUI.PrintFormatted("You cheat your way to floor " + to[0] + ", press enter to continue");
+            if (CurrentFloor == null || CurrentFloor.Down == null) { return false; }
+
+            CurrentFloor = CurrentFloor.Down;
+            TextUI.PrintFormatted("You cheat your way to " + CurrentFloor.Name + ", press enter to continue");
             Console.ReadLine();
 
             return true;
         }
 
         public bool ActivateRoom(int[] dum) {
-			Room point = Floors[FloorNum].GetCurrentPosition();
+			Room point = CurrentFloor.GetCurrentPosition();
 			point.Active();
 
 			return true;
 		}
 
         public bool ViewRoom(int[] dum) {
-			Room point = Floors[FloorNum].GetCurrentPosition();
+			Room point = CurrentFloor.GetCurrentPosition();
 			TextUI.PrintFormatted("You look around the room");
 			TextUI.PrintFormatted(point.GetDescription());
 			TextUI.PrintFormatted("Press enter to continue");
@@ -95,35 +105,22 @@ namespace Card_Test.Map {
             return true;
         }
 
-        public void MoveUp(int dum, int dumm) {
-            if (FloorNum <= 0) {
-                TextUI.PrintFormatted("You cannot move up a floor, press enter to continue");
-                Console.ReadLine();
-                return;
+        public void ChangeFloor (Floor to) {
+            if (to == null) {
+                TextUI.PrintFormatted("You cannot move to that floor");
+            } else {
+                TextUI.PrintFormatted("You move to " + to.Name);
+                CurrentFloor = to;
             }
 
-            TextUI.PrintFormatted("You move up a floor, press enter to continue");
-            Console.ReadLine();
-            FloorNum--;
-        }
-
-        public void MoveDown(int dum, int dumm) {
-            if (FloorNum >= Floors.Count - 1) {
-                TextUI.PrintFormatted("You cannot move down a floor, press enter to continue");
-                Console.ReadLine();
-                return;
-            }
-
-            TextUI.PrintFormatted("You move down a floor, press enter to continue");
-            Console.ReadLine();
-            FloorNum++;
+            TextUI.Wait();
         }
 
         public bool Move(int[] movement) {
 			if (movement == null || movement.Length == 0) { return false; }
 			if (movement[0] == -1) { return false; }
 
-			return Floors[FloorNum].MoveTo(movement[0]);
+			return CurrentFloor.MoveTo(movement[0]);
 		}
 
         public int[] ParseMove(string input) {
@@ -142,16 +139,16 @@ namespace Card_Test.Map {
 
         public void PrintScene() {
 			Console.Clear();
-			// TextUI.PrintFormatted(new string(' ', Floors[FloorNum].Width * 3 + 7) + "  W");
-			TextUI.PrintFormatted("\n\t" + Floors[FloorNum].Name + "\n");
-			// TextUI.PrintFormatted(new string(' ', Floors[FloorNum].Width * 3 + 7) + "  S\n");
-			TextUI.PrintFormatted(Floors[FloorNum].GetCurrentRoomDetails());
-			// Ω
-			string floor = Floors[FloorNum].ToString();
 
-			TextUI.PrintFormatted("\n" + floor);
+            if (CurrentFloor != null) {
+			    TextUI.PrintFormatted("\n\t" + CurrentFloor.Name + "\n");
+			    TextUI.PrintFormatted(CurrentFloor.GetCurrentRoomDetails());
+			    string floor = CurrentFloor.ToString();
 
-			TextUI.PrintFormatted(Global.Run.Player + " Material : " + Global.Run.Player.Material);
+			    TextUI.PrintFormatted("\n" + floor);
+            }
+
+            TextUI.PrintFormatted(Global.Run.Player + " Material : " + Global.Run.Player.Material);
 			Console.WriteLine();
 		}
     }

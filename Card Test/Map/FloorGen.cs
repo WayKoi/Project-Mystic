@@ -1,4 +1,5 @@
-﻿using Card_Test.Tables;
+﻿using Card_Test.Base;
+using Card_Test.Tables;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -18,8 +19,6 @@ namespace Card_Test.Map {
 
         public RoomGen Rooms;
         public TRoom[] Prepend;
-
-        public Action<int, int> StartRoom = null, EndRoom = null;
 
         public string Name;
 
@@ -53,8 +52,9 @@ namespace Card_Test.Map {
         public int[] Shops, Specials;
         public int[] ShopWeights;
         public int[] Battles;
+        public RareRoom[] Rares;
 
-        public RoomGen (int campfires = 0, int inns = 0, int battleMin = 0, int battleMax = 0, int[] shops = null, int[] specials = null, int[] shopweights = null) {
+        public RoomGen (int campfires = 0, int inns = 0, int battleMin = 0, int battleMax = 0, int[] shops = null, int[] specials = null, int[] shopweights = null, RareRoom[] rareRooms = null) {
             Campfires = campfires;
             Inns = inns;
 
@@ -64,6 +64,18 @@ namespace Card_Test.Map {
             Specials = specials;
 
             ShopWeights = shopweights;
+
+            Rares = rareRooms;
+        }
+    }
+
+    public class RareRoom : Rollable {
+        public TRoom Room;
+        public int Max;
+
+        public RareRoom (int RoomType, int chance, int max = 100, int[] Data = null) : base (chance) {
+            Room = new TRoom(RoomType, Data);
+            Max = max;
         }
     }
 

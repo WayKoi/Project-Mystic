@@ -1,12 +1,7 @@
 ﻿
-Add rare rooms
-Make alternate floors possible
-Travelling merchant
-
 Add the special casting systems to CardAI
 
-Fill the summon table
-
+Travelling merchant
 Room types
 	Library room
 		allows the player to trade in a card for one of the same type paying 10 + difference in card prices
@@ -23,6 +18,10 @@ Room types
 			Big Pack Shop (5-6 packs?)
 			Tailor ?
 			Inn ?
+
+	
+Fill the summon table
+
 
 	?????
 More events
