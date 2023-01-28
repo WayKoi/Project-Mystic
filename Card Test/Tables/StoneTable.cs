@@ -128,8 +128,8 @@ namespace Card_Test.Tables {
 			new StoneEffect(10, "3 Mana, Heal specific target for 50% max HP, 1 per battle",
 				false, true, false, false, 3, 1, null, DuneC
 			),
-			new StoneEffect(10, "2 Mana, Sink the enemies in sand for a turn making them unable to attack this turn, 2 per battle",
-				false, false, false, false, 2, 2, new int[] { 0, 1, 0 }, StatusField
+			new StoneEffect(10, "2 Mana, Sink the enemies in sand for a turn making them unable to attack this turn, 1 per battle",
+				false, false, false, false, 2, 1, new int[] { 0, 1, 0 }, StatusField
 			),
 			new StoneEffect(10, "1 Mana, Create a sand card based on a card in your deck and draw it, Instant effect, 2 per battle",
 				false, false, true, false, 1, 2, new int[] { Types.Translate("sand") }, DrawGhost
@@ -183,17 +183,17 @@ namespace Card_Test.Tables {
 			new StoneEffect(10, "Takes unused mana and draws a card for every mana not used at the end of the turn (max 2), restriction : all other unused mana effects",
 				true, false, false, true, -1, -1, null, IvoryA, null, RestrictUnusedManaEffects
 			),
-			new StoneEffect(10, "Player gains a 10% shield at the end of the turn",
+			new StoneEffect(10, "Player gains a 50% shield at the end of the turn",
 				true, false, false, true, -1, -1, null, IvoryB
 			),
 
 			new StoneEffect(10, "2 Mana, Draw 2, 1 per battle",
 				false, false, true, false, 2, 1, null, IvoryD
 			),
-			new StoneEffect(10, "2 Mana, Root all opponents for a turn making them unable to attack, 2 per battle",
-				false, false, false, false, 2, 2, new int[] { 4, 1, 0 }, StatusField
+			new StoneEffect(10, "2 Mana, Root all opponents for a turn making them unable to attack, 1 per battle",
+				false, false, false, false, 2, 1, new int[] { 4, 1, 0 }, StatusField
 			),
-			new StoneEffect(10, "4 Mana, Entire party gets 75% shields, 1 per battle",
+			new StoneEffect(10, "4 Mana, Entire party gets 2 shields, 1 per battle",
 				false, false, false, false, 4, 1, null, IvoryC
 			),
 		};
@@ -249,7 +249,7 @@ namespace Card_Test.Tables {
 			List<int> friends = BattleUtil.GetFromSide(0, targets);
 
 			foreach (int num in friends) {
-				Types.Shield(new Card(2, 3), targets, num, report);
+				Types.Shield(new Card(2, 2), targets, num, report);
 			}
 
 			// report.PrintReport();

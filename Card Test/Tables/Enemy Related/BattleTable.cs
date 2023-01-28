@@ -26,6 +26,19 @@ namespace Card_Test.Tables {
 			}, 1)
 		};
 
+		public static BattlePool[] Oasis = {
+			new BattlePool(1, 2, new BTableEntry[] {
+				new BTableEntry(EnemyTable.Snake, 40),
+				new BTableEntry(EnemyTable.Scorpion, 5),
+				new BTableEntry(EnemyTable.DragonFly, 30),
+				new BTableEntry(EnemyTable.Hyena, 50)
+			}, 9),
+
+			new BattlePool(1, 1, new BTableEntry[] {
+				new BTableEntry(EnemyTable.Crocodile, 1)
+			}, 1)
+		};
+
 		public static BattlePool[] IvoryHalls = {
 			new BattlePool(1, 2, new BTableEntry[] {
 				new BTableEntry(EnemyTable.MHead, 10, 1),

@@ -6,7 +6,7 @@ using System.Text;
 
 namespace Card_Test.Tables {
 	public static class FloorTable {
-        public static FloorGen OverGrowth = new FloorGen("Overgrowth", 0,
+        public static FloorGen OverGrowth = new FloorGen("Overgrowth I", 0,
             4, 3, 4, 2, 2,
             new RoomGen(1, 0, 1, 2, new int[] { 0 }, null, new int[] { 2, 3 }),
             BossTable.Beetle,
@@ -18,6 +18,14 @@ namespace Card_Test.Tables {
             new RoomGen(1, 1, 2, 3, new int[] { 0, 0 }, null, new int[] { 2, 3 }),
             BossTable.Salamander,
             BattleTable.SandyCaverns,
+            50, 1
+        );
+
+        public static FloorGen Oasis = new FloorGen("Oasis", 1,
+            8, 4, 6, 4, 2,
+            new RoomGen(1, 1, 2, 3, new int[] { 0, 0 }, null, new int[] { 2, 3 }),
+            BossTable.Camel,
+            BattleTable.Oasis,
             50, 1
         );
 
@@ -49,7 +57,8 @@ namespace Card_Test.Tables {
             10, 10, 8, 5, 3,
             new RoomGen(3, 1, 0, 0, new int[] { 1, 1, 1, 2, 2, 2, 3, 3, 3 }, new int[] { 1, 1, 1, 2, 2, 2 }),
             BossTable.Warlock,
-            BattleTable.CrystalHollow
+            BattleTable.CrystalHollow,
+            100, 1
         );
             
         // ------------------------------------------------------------------------------------------------------
@@ -64,7 +73,8 @@ namespace Card_Test.Tables {
 
         public static FloorPool TierOne = new FloorPool(
             new FPoolEntry[] {
-                new FPoolEntry(SandyCaverns, 1)
+                new FPoolEntry(SandyCaverns, 1),
+                new FPoolEntry(Oasis, 1)
             }
         );
 

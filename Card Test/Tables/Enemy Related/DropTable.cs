@@ -6,17 +6,17 @@ using Card_Test.Files;
 
 namespace Card_Test.Tables {
 	public static class DropTable {
-		public static Drops BasicA = new Drops(2, 8);
+		public static Drops BasicA = new Drops(3, 8);
 		public static Drops BasicB = new Drops(6, 10);
 		public static Drops BasicC = new Drops(8, 14);
 		public static Drops BasicD = new Drops(10, 18);
 		public static Drops BasicEA = new Drops(12, 22);
 		public static Drops BasicEB = new Drops(18, 24);
 
-		public static Drops BossA = new Drops(20, 25, null, Beetle);
-		public static Drops BossB = new Drops(35, 45, null, Salamander);
-		public static Drops BossC = new Drops(50, 60, null, Mannequin);
-		public static Drops BossD = new Drops(100, 120, null, Demon);
+		public static Drops BossA = new Drops(25, 35, null, One);
+		public static Drops BossB = new Drops(35, 45, null, Two);
+		public static Drops BossC = new Drops(50, 60, null, Three);
+		public static Drops BossD = new Drops(100, 120, null, Four);
 		public static Drops BossE = new Drops(180, 220);
 
 		public static Drops RareA = new Drops(30, 50);
@@ -37,47 +37,47 @@ namespace Card_Test.Tables {
 			return true;
 		}
 
-		public static void Beetle (int[] args) {
+		public static void One (int[] args) {
 			Console.Clear();
-			TextUI.PrintFormatted("Congratulations! You have defeated the Beetle!");
+			TextUI.PrintFormatted("Congratulations! You have defeated the boss!");
 
 			TextUI.PrintFormatted(Global.Run.Player.Name + " Gains a mana container!\n");
 			TextUI.PrintFormatted("  Mana " + Global.Run.Player.MaxMana + " -> " + (Global.Run.Player.MaxMana + 1) + "\n");
 			Global.Run.Player.MaxMana++;
 
-			Boss("Beetle");
+			Boss(/*"Beetle"*/);
 		}
 
-		public static void Salamander(int[] args) {
+		public static void Two(int[] args) {
 			Console.Clear();
-			TextUI.PrintFormatted("Congratulations! You have defeated the Salamander!");
-			Boss("Salamander");
+			TextUI.PrintFormatted("Congratulations! You have defeated the boss!");
+			Boss(/*"Salamander"*/);
 
 			Console.Clear();
 			StoneTable.RollStone("Dune Gem", "DG", StoneTable.DuneGem);
 		}
 
-		public static void Mannequin(int[] args) {
+		public static void Three(int[] args) {
 			Console.Clear();
-			TextUI.PrintFormatted("Congratulations! You have defeated the Mannequin!");
-			
-			Boss("Mannequin");
+			TextUI.PrintFormatted("Congratulations! You have defeated the boss!");
+
+			Boss(/*"Mannequin"*/);
 
 			Console.Clear();
 			StoneTable.RollStone("Ivory Gem", "IG", StoneTable.IvoryGem);
 		}
 
-		public static void Demon(int[] args) {
+		public static void Four(int[] args) {
 			Console.Clear();
-			TextUI.PrintFormatted("Congratulations! You have defeated the Demon!");
+			TextUI.PrintFormatted("Congratulations! You have defeated the boss!");
 
-			Boss("Demon");
+			Boss(/*"Demon"*/);
 
 			/*Console.Clear();
 			StoneTable.RollStone("Ivory Gem", "IG", StoneTable.IvoryGem);*/
 		}
 
-		public static void Boss (string pack) {
+		public static void Boss (/*string pack*/) {
 			foreach (Gear gear in Global.Run.Player.Gear) {
 				if (gear.Name.Equals("Satchel")) {
 					gear.Upgrade();
@@ -91,7 +91,7 @@ namespace Card_Test.Tables {
 			Global.Run.Player.Heal(amt);
 			TextUI.PrintFormatted("  " + before + " -> " + Global.Run.Player.HealthToString() + "\n");
 
-			TextUI.PrintFormatted(Global.Run.Player.Name + " gets a pack!\n" + pack + "\n");
+			/*TextUI.PrintFormatted(Global.Run.Player.Name + " gets a pack!\n" + pack + "\n");
 			List<Card> pulls = Reader.ReadPack(pack).Pull();
 
 			List<string> cards = new List<string>();
@@ -104,7 +104,7 @@ namespace Card_Test.Tables {
 			TextUI.PrintFormatted(String.Join('\n', TextUI.Combine(cards)));
 			TextUI.PrintFormatted("All cards are added to the Trunk\n");
 
-			Global.Run.Player.Cards.AddCardTrunk(pulls.ToArray());
+			Global.Run.Player.Cards.AddCardTrunk(pulls.ToArray());*/
 
 			TextUI.Wait();
 

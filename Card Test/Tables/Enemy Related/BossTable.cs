@@ -15,6 +15,10 @@ namespace Card_Test.Tables {
 			EnemyTable.Salamander
 		});
 
+		public static Boss Camel = new Boss(new AIEntry[] {
+			EnemyTable.Camel
+		});
+
 		public static Boss Mannequin = new Boss(new AIEntry[] {
 			EnemyTable.MLeg,
 			EnemyTable.MArm,

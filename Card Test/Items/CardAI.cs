@@ -210,9 +210,13 @@ namespace Card_Test {
 			Value += report.Defeated * 200 * (Flip ? -1 : 1);
 
 			// positive effects
-			Value += (int) (report.Healing * (0.40 + (Current.Total[Target].Health / (double) Current.Total[Target].MaxHealth))) * (Flip ? 1 : -1);
+			double healMult = (Target != -1 ? 0.40 + (Current.Total[Target].Health / (double)Current.Total[Target].MaxHealth) : 1);
+			Value += (int) (report.Healing * healMult) * (Flip ? 1 : -1);
+
+			double shieldMult = (Target != -1) ? Math.Min(Current.Total[Target].MaxHealth - Current.Total[Target].Health, 60) : 30;
+			Value += (int) (report.SGained * shieldMult) * (Flip ? 1 : -1);
+
 			Value += report.Drawn * 50 * (Target == -1 || !Flip ? 1 : -1);
-			Value += report.SGained * Math.Min(Current.Total[Target].MaxHealth - Current.Total[Target].Health, 60) * (Flip ? 1 : -1);
 
 			// Neutral Effects
 			Value += report.Summons * 100;
