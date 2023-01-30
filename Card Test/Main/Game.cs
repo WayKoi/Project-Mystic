@@ -10,7 +10,6 @@ using Card_Test.Utilities;
 namespace Card_Test {
 	public static class Game {
 		public static void Start () {
-
 			/*Deck test = Reader.ReadDeck("tango");
 			// Writer.WriteDeck(test, "Test");
 			test.EditDeck();*/

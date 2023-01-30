@@ -41,6 +41,81 @@ Floor Ideas
 		
 	floor 9 - 
 
+Alt Floors
+	T0
+		Overgrowth I
+			Wolf
+			Rat
+			Spider
+
+			Beetle
+			Grub * 2
+		Crater
+			
+	T1
+		Sandy Caverns
+			Snake
+			Scorpion
+			Sand Wizard
+
+			Salamander
+			Worm
+		Oasis
+			Snake
+			Dragon Fly
+			Scorpion
+			Crocodile
+
+			Camel
+	T2
+		Overgrowth II
+			
+
+			Elephant
+		Ivory Halls I
+			M leg
+			M arm
+			M head
+			Living Buzz Saw
+
+			M body
+			M arm * 2
+			M leg * 2
+	T3
+		Catacombs
+			Skeleton
+			BloodBat
+			Zombie
+				Poltergeist
+				Banshee
+			Vampire
+
+			Demon
+		Ivory Halls II
+			Polter and Banshee ?
+
+
+			
+	T4
+		Crystal Hollow
+			Mineral Golem
+			Lesser Dragon
+			Imp
+			Animated Crystal
+			Mimic
+
+			Warlock
+	T5
+		
+	T6
+
+	T7
+	
+	T8
+	
+	T9
+
+
 Apocalypse Gemstone
 	consume remaining mana to deal AOE damage to all enemies, 1 per battle
 	2 mana, set all enemies on fire for 2 turns, 1 per battle
