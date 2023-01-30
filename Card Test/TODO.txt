@@ -1,5 +1,6 @@
 ﻿
-Add the special casting systems to CardAI
+The AI can play a card and multi / side / fusion it in the same turn
+	to fix this change the plannables into a state like struct that keeps track of the cards that it costs from the hand
 
 Travelling merchant
 Room types

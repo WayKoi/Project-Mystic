@@ -33,7 +33,11 @@ namespace Card_Test.Items {
 			Targeting = Result.Targeting;
 		}
 
-		public override bool Additional(Character Caster, PlayReport report) {
+        public override Card CardEquiv() {
+			return Result;
+        }
+
+        public override bool Additional(Character Caster, PlayReport report) {
 			if (Result == null || Fuse == null || Fuse.Count < 2) {
 				if (report != null) { report.Additional.Add("Not enough cards to do a fusion"); }
 				return false;
@@ -64,7 +68,9 @@ namespace Card_Test.Items {
 		}
 
 		public override bool Play(Character Caster, List<BattleChar> Targets, int Specific, PlayReport report = null) {
-			return Result.Play(Caster, Targets, Specific, report);
+			bool ret = Result.Play(Caster, Targets, Specific, report);
+			report.Played = this;
+			return ret;
 		}
 
 		public override void UpdateValues(Character caster) { }
@@ -97,6 +103,10 @@ namespace Card_Test.Items {
 			}
 
 			return true;
+        }
+
+        public override Card CardEquiv() {
+			return Side;
         }
 
         public override void Cancel(Character Caster) {
@@ -158,6 +168,12 @@ namespace Card_Test.Items {
 			if (Counter == 1) { Remove = true; }
 		}
 
+        public override Card CardEquiv() {
+			Card temp = new Card(Multi);
+			temp.ChangeTier(1);
+			return temp;
+        }
+
         public override bool Additional(Character Caster, PlayReport report) {
 			if (Caster.MultiCastSlots < 1) {
 				if (report != null) { report.Additional.Add("Not enough Multicasting slots available to multicast"); }
@@ -206,7 +222,9 @@ namespace Card_Test.Items {
 
 			Card cast = new Card(Multi);
 			cast.ChangeTier(cast.Element.TierLim[0]);
-			return cast.Play(Caster, Targets, spec, report);
+			bool ret = cast.Play(Caster, Targets, spec, report);
+			report.Played = this;
+			return ret;
 		}
 
         public override void UpdateValues(Character Caster) { }

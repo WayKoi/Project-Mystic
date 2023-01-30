@@ -1,8 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 using Card_Test.Base;
 using Card_Test.Files;
+using Card_Test.Items;
 using Card_Test.Tables;
 using Sorting;
 
@@ -43,12 +45,32 @@ namespace Card_Test {
 			}
 
 			Possible = new List<Plannable>();
+			int handcount = Hand.Count;
 
-			for (int i = 0; i < Hand.Count; i++) {
+			for (int i = 0; i < handcount; i++) {
 				Possible.Add(Hand[i]);
 			}
 
 			// Add logic for planning fusions and sides and multis here
+			if (MultiCastSlots > 0) {
+				for (int i = 0; i < handcount; i++) {
+					Possible.Add(new MultiPlan(Hand[i]));
+				}
+			}
+
+			if (SideCastCounters > 0) {
+				for (int i = 0; i < handcount; i++) {
+					Possible.Add(new SidePlan(Hand[i]));
+				}
+			}
+
+			if (FusionCounters > 0) {
+				for (int i = 0; i < handcount; i++) {
+					for (int ii = i + 1; ii < handcount; ii++) {
+						Possible.Add(new FusionPlan((new Card[] { Hand[i], Hand[ii] }).ToList()));
+					}
+				}
+			}
 
 			FieldSim Point = new FieldSim(Targets, Self.Side);
 			Point.Mana = Mana;

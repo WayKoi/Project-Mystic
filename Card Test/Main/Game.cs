@@ -10,44 +10,6 @@ using Card_Test.Utilities;
 namespace Card_Test {
 	public static class Game {
 		public static void Start () {
-			/*
-			Width = Gen[0];
-            Height = Gen[1];
-            BossLen = Gen[2];
-            BranchLen = Gen[3];
-            BranchAmt = Gen[4];
-
-            ShopTier = RoomVals[0];
-            InnCost = RoomVals[1];
-
-            Magnetic = Chances[0];
-            BaseWeight = Chances.Length > 1 ? Chances[1] : 10;
-
-            RoomAmt = roomamt;
-            ShopTypes = shopTypes;
-            ShopWeights = shopweights;
-            BattleData = battleData;
-
-            BossAction = Boss;
-
-            Prepend = prepend;
-			*/
-
-			/*FloorGen gen = new FloorGen(
-				new int[] { 7, 7, 8, 5, 3 },
-				new int[] { 2, 60 },
-				new int[] { 50, 1 },
-				new int[] { 2, 1, 2 },
-				new int[] { 2, 0, 0, 1 },
-				new int[] { 1, 1 },
-				new int[] { 5, 5 },
-				BossTable.Warlock,
-				EventTable.BTableE
-			);
-
-			while (true) {
-				TestFloor(gen, 0);
-			}*/
 
 			/*Deck test = Reader.ReadDeck("tango");
 			// Writer.WriteDeck(test, "Test");
@@ -75,26 +37,32 @@ namespace Card_Test {
 					TextUI.Prompt("What would you like to do?", CharacterMenu);
 				}
 
-                // Global.Run.Player.MaxFusion = 2;
-                // Global.Run.Player.MaxSide = 1;
-                // Global.Run.Player.MaxMulti = 1;
+				// Global.Run.Player.MaxFusion = 2;
+				// Global.Run.Player.MaxSide = 1;
+				// Global.Run.Player.MaxMulti = 1;
 
-                // Global.Run.Player.Material = 10000;
+				// Global.Run.Player.Material = 10000;
 
-                /*for (int i = 0; i < 5; i++) {
+				/*for (int i = 0; i < 5; i++) {
 					for (int ii = 0; ii < Global.Run.Player.Gear.Count; ii++) {
 						Global.Run.Player.Gear[ii].Upgrade(true);
 					}
 				}*/
 
-                /*Console.Clear();
+				/*Console.Clear();
 				StoneTable.RollStone("Test Gem", "TG", StoneTable.IvoryGem, 6);*/
+
+				/*Global.Run.Player.MaxHealth = 1000;
+				Global.Run.Player.Health = 1000;
+
+                CardAI test = new CardAI("Fusionist", 1, 4, Reader.ReadDeck("warlock"), null, 100, 100, 3);
+                test.MaxMulti = 1;
+                Battle batt = new Battle(Global.Run.Players.ToArray(), new Character[] { test });
+                batt.Run();*/
 
                 Global.Run.TenFloor.Init();
 				Global.Run.TenFloor.Run();
-				/*Battle batt = new Battle(Global.Run.Players.ToArray(), new Character[] { EnemyTable.GenEntry(EnemyTable.DuneWizard) });
-				batt.Run();*/
-
+				
 				Global.Run = null;
 			}
 		}
