@@ -57,6 +57,7 @@ namespace Sorting {
 	}
 
 	public static class Compare {
+
 		public static bool String(object A, object B) {
 			string a = A as string;
 			string b = B as string;

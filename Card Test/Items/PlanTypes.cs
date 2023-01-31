@@ -9,6 +9,7 @@ namespace Card_Test.Items {
 	public class FusionPlan : Plannable {
 		private List<Card> Fuse = new List<Card>();
 		private Card Result = null;
+		private bool DrawResult = false;
 
 		public FusionPlan(List<Card> fuse) {
 			for (int i = 0; i < fuse.Count; i++) {
@@ -70,6 +71,7 @@ namespace Card_Test.Items {
 		public override bool Play(Character Caster, List<BattleChar> Targets, int Specific, PlayReport report = null) {
 			bool ret = Result.Play(Caster, Targets, Specific, report);
 			report.Played = this;
+			DrawResult = true;
 			return ret;
 		}
 
@@ -81,6 +83,11 @@ namespace Card_Test.Items {
 			for (int i = 0; i < Fuse.Count; i++) {
 				cards.Add(Fuse[i].ToString());
 				if (i < Fuse.Count - 1) { cards.Add("\n\n+"); }
+			}
+
+			if (DrawResult) {
+				cards.Add("\n\n->");
+				cards.Add(Result.ToString());
 			}
 
 			return string.Join('\n', TextUI.MakeTable(cards, 0));

@@ -19,7 +19,7 @@ namespace Card_Test {
 
 		public int FringeSize = 6;
 
-		private List<Plannable> Possible; 
+		private List<SimWrapper> Possible; 
 
 		public CardAI(string name, int maxhealth, int maxmana, TDeck deck = null, Drops drop = null, int respondrate = 100, int accuracy = 100, int maxplay = 1) : base (name, maxhealth, maxmana, deck) {
 			RespondRate = respondrate;
@@ -44,30 +44,30 @@ namespace Card_Test {
 				return;
 			}
 
-			Possible = new List<Plannable>();
+			Possible = new List<SimWrapper>();
 			int handcount = Hand.Count;
 
 			for (int i = 0; i < handcount; i++) {
-				Possible.Add(Hand[i]);
+				Possible.Add(new SimWrapper(Hand[i], i));
 			}
 
 			// Add logic for planning fusions and sides and multis here
 			if (MultiCastSlots > 0) {
 				for (int i = 0; i < handcount; i++) {
-					Possible.Add(new MultiPlan(Hand[i]));
+					Possible.Add(new SimWrapper(new MultiPlan(Hand[i]), i));
 				}
 			}
 
 			if (SideCastCounters > 0) {
 				for (int i = 0; i < handcount; i++) {
-					Possible.Add(new SidePlan(Hand[i]));
+					Possible.Add(new SimWrapper(new SidePlan(Hand[i]), i));
 				}
 			}
 
 			if (FusionCounters > 0) {
 				for (int i = 0; i < handcount; i++) {
 					for (int ii = i + 1; ii < handcount; ii++) {
-						Possible.Add(new FusionPlan((new Card[] { Hand[i], Hand[ii] }).ToList()));
+						Possible.Add(new SimWrapper(new FusionPlan((new Card[] { Hand[i], Hand[ii] }).ToList()), new int[] { i, ii }));
 					}
 				}
 			}
@@ -115,7 +115,7 @@ namespace Card_Test {
 				if (!point.CheckUsed(Possible[i])) {
 					SimNode test = ChooseTarget(point.Current, Possible[i]);
 
-					PlanStep step = new PlanStep(test.Play, this, point.Current.Involved, test.Target);
+					PlanStep step = new PlanStep(test.Play.Plan, this, point.Current.Involved, test.Target);
 					if (step.TestPlan(null)) {
 						Choices.Add(test);
 					}
@@ -143,13 +143,13 @@ namespace Card_Test {
 			}
 		}
 
-		private SimNode ChooseTarget(FieldSim sim, Plannable plan) {
-			if (!plan.Targeting) { return new SimNode(sim, plan); }
+		private SimNode ChooseTarget(FieldSim sim, SimWrapper plan) {
+			if (!plan.Plan.Targeting) { return new SimNode(sim, plan); }
 			List<CharSim> Targs;
 
-			if (plan.TargetType == 0) { // Anyone
+			if (plan.Plan.TargetType == 0) { // Anyone
 				Targs = sim.Total;
-			} else if (plan.TargetType == 1) { // Friendlies
+			} else if (plan.Plan.TargetType == 1) { // Friendlies
 				Targs = sim.Friends;
 			} else { // Enemies
 				Targs = sim.Enemies;
@@ -175,38 +175,52 @@ namespace Card_Test {
 		public List<SimNode> Desc = new List<SimNode>();
 		public int Value = 0, Target = -1;
 		public FieldSim Current;
-		public Plannable Play;
+		public SimWrapper Play;
 		public bool Valid = true;
 		public int Depth = 0;
 
+		public List<int> Needed = new List<int>();
+
 		private SimNode Link = null;
 
-		public SimNode(SimNode parent, Plannable play, int target = -1) {
+		public SimNode(SimNode parent, SimWrapper play, int target = -1) {
 			Target = target;
 			Play = play;
 			Link = parent;
+
+			Needed.AddRange(parent.Needed);
+			if (play != null) { Needed.AddRange(play.Need); }
+
 			Current = new FieldSim(Link.Current);
 			if (Play == null) { return; }
-			ValuePlay(Current.SimCard(Play, target));
+			ValuePlay(Current.SimCard(Play.Plan, target));
 
 			Depth = Link.Depth + 1;
 		}
 
-		public SimNode(FieldSim state, Plannable play, int target = -1) {
+		public SimNode(FieldSim state, SimWrapper play, int target = -1) {
 			Target = target;
 			Play = play;
 			Current = new FieldSim(state);
+
+			if (play != null) {
+				foreach (int i in play.Need) {
+					Needed.Add(i);
+				}
+			}
+
 			if (Play == null) { return; }
-			ValuePlay(Current.SimCard(Play, target));
+			ValuePlay(Current.SimCard(Play.Plan, target));
 		}
 
-		public void AddDescendant(Plannable play, int target = -1) {
+		public void AddDescendant(SimWrapper play, int target = -1) {
 			AddDescendant(new SimNode(this, play, target));
 		}
 
 		public void AddDescendant(SimNode node) {
 			node.Link = this;
 			node.Depth = Depth + 1;
+			node.Needed.AddRange(Needed);
 			Desc.Add(node);
 		}
 
@@ -250,15 +264,22 @@ namespace Card_Test {
 		}
 
 		// checks if the play has been used in this branch already
-		public bool CheckUsed(Plannable check) {
-			if (Play == check) { return true; }
-			if (Link == null) { return false; }
-			return Link.CheckUsed(check);
+		public bool CheckUsed(SimWrapper check) {
+			bool ret = false;
+
+			for (int i = 0; i < Needed.Count; i++) {
+				if (check.Need.Contains(Needed[i])) {
+					ret = true;
+					break;
+				}
+			}
+
+			return ret;
 		}
 
 		public void GenPlan(Character Caster) {
 			if (Link != null) { Link.GenPlan(Caster); }
-			if (Play != null) { Caster.Plan.PlanOrCast(null, Play, Current.Involved, Target); }
+			if (Play != null) { Caster.Plan.PlanOrCast(null, Play.Plan, Current.Involved, Target); }
 		}
 	}
 
@@ -434,6 +455,21 @@ namespace Card_Test {
 		public SimReport (int damage = 0, int healing = 0) {
 			Damage = damage;
 			Healing = healing;
+		}
+	}
+
+	public class SimWrapper {
+		public Plannable Plan;
+		public int[] Need;
+
+		public SimWrapper(Plannable plan, int[] needed) {
+			Plan = plan;
+			Need = needed;
+		}
+
+		public SimWrapper(Plannable plan, int need) {
+			Plan = plan;
+			Need = new int[] { need };
 		}
 	}
 }

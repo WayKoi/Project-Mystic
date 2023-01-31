@@ -36,28 +36,28 @@ namespace Card_Test {
 					TextUI.Prompt("What would you like to do?", CharacterMenu);
 				}
 
-				// Global.Run.Player.MaxFusion = 2;
-				// Global.Run.Player.MaxSide = 1;
-				// Global.Run.Player.MaxMulti = 1;
+                // Global.Run.Player.MaxFusion = 2;
+                // Global.Run.Player.MaxSide = 1;
+                // Global.Run.Player.MaxMulti = 1;
 
-				// Global.Run.Player.Material = 10000;
+                // Global.Run.Player.Material = 10000;
 
-				/*for (int i = 0; i < 5; i++) {
+                /*for (int i = 0; i < 5; i++) {
 					for (int ii = 0; ii < Global.Run.Player.Gear.Count; ii++) {
 						Global.Run.Player.Gear[ii].Upgrade(true);
 					}
 				}*/
 
-				/*Console.Clear();
+                /*Console.Clear();
 				StoneTable.RollStone("Test Gem", "TG", StoneTable.IvoryGem, 6);*/
 
-				/*Global.Run.Player.MaxHealth = 1000;
-				Global.Run.Player.Health = 1000;
+                Global.Run.Player.MaxHealth = 1000;
+                Global.Run.Player.Health = 1000;
 
                 CardAI test = new CardAI("Fusionist", 1, 4, Reader.ReadDeck("warlock"), null, 100, 100, 3);
-                test.MaxMulti = 1;
+                test.MaxFusion = 1;
                 Battle batt = new Battle(Global.Run.Players.ToArray(), new Character[] { test });
-                batt.Run();*/
+                batt.Run();
 
                 Global.Run.TenFloor.Init();
 				Global.Run.TenFloor.Run();
