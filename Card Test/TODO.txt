@@ -1,7 +1,4 @@
 ﻿
-The AI can play a card and multi / side / fusion it in the same turn
-	to fix this change the plannables into a state like struct that keeps track of the cards that it costs from the hand
-
 Travelling merchant
 Room types
 	Library room
@@ -41,7 +38,7 @@ Floor Ideas
 		
 	floor 9 - 
 
-Alt Floors
+Alt Floors (-- means not in yet)
 	T0
 		Overgrowth I
 			Wolf
@@ -50,7 +47,7 @@ Alt Floors
 
 			Beetle
 			Grub * 2
-		Crater
+		Crater --
 			
 	T1
 		Sandy Caverns
@@ -68,7 +65,7 @@ Alt Floors
 
 			Camel
 	T2
-		Overgrowth II
+		Overgrowth II --
 			
 
 			Elephant
@@ -91,7 +88,7 @@ Alt Floors
 			Vampire
 
 			Demon
-		Ivory Halls II
+		Ivory Halls II --
 			Polter and Banshee ?
 
 
@@ -115,6 +112,18 @@ Alt Floors
 	
 	T9
 
+
+Characters
+	Freya
+		Ice based
+	Tinkerer
+		All cards are type Tinker
+			Tinker cards can fuse with any base type to produce a tinker card of that type
+		Has -90% magic and -90% physical affinity
+		Starts with a fusion counter but cannot get more
+	some sort of dual character
+
+	
 
 Apocalypse Gemstone
 	consume remaining mana to deal AOE damage to all enemies, 1 per battle

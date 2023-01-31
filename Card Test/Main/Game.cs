@@ -51,13 +51,13 @@ namespace Card_Test {
                 /*Console.Clear();
 				StoneTable.RollStone("Test Gem", "TG", StoneTable.IvoryGem, 6);*/
 
-                Global.Run.Player.MaxHealth = 1000;
+                /*Global.Run.Player.MaxHealth = 1000;
                 Global.Run.Player.Health = 1000;
 
                 CardAI test = new CardAI("Fusionist", 1, 4, Reader.ReadDeck("warlock"), null, 100, 100, 3);
                 test.MaxFusion = 1;
                 Battle batt = new Battle(Global.Run.Players.ToArray(), new Character[] { test });
-                batt.Run();
+                batt.Run();*/
 
                 Global.Run.TenFloor.Init();
 				Global.Run.TenFloor.Run();

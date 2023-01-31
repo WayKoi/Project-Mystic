@@ -30,7 +30,8 @@ namespace Card_Test {
 
 			/*Left.AddRange(players);
 			Right.AddRange(enemies);*/
-
+			// new MenuItem(new string[] { "Target", "T" }, TellTarget, TextUI.Parse, "tell a friendly party member who to target\n  Target (who you are telling) (who they are targeting)"),
+			
 			BattleMenu = new MenuItem[] {
 				new MenuItem(new string[] { "Plan", "P" }, PlayerAddPlan, TextUI.Parse, "plan or cast a move\n  Plan (Card to play) (Target)"),
 				new MenuItem(new string[] { "Fuse", "F" }, FusionPlan, TextUI.Parse, "Fuse Cards together, costs Fusion counters\n  Fuse (Cards) (Target)"),
@@ -39,7 +40,6 @@ namespace Card_Test {
 				new MenuItem(new string[] { "Remove", "R" }, PlayerRemovePlan, TextUI.Parse, "remove part of the plan\n  r (plan to remove)"),
 				new MenuItem(new string[] { "Stone", "S" }, Stone, TextUI.Parse, "use a stones effect\n Stone (Stone #) (Target optional)"),
 				new MenuItem(new string[] { "Stone?", "S?" }, StoneInfo, TextUI.Parse, "look at a stones info\n S? (Stone #)" ),
-				new MenuItem(new string[] { "Target", "T" }, TellTarget, TextUI.Parse, "tell a friendly party member who to target\n  Target (who you are telling) (who they are targeting)"),
 				new MenuItem(new string[] { "Clear", "Cl" }, PlayerClearPlan, TextUI.Parse, "clear the current plan"),
 				new MenuItem(new string[] { "Execute", "E" }, PlayPlanMenu, TextUI.Parse, "execute the current plan and play out the turn")
 			};
@@ -78,7 +78,7 @@ namespace Card_Test {
 
 						if (Involved[i].Unit is CardAI) {        // generate a plan if they are an AI
 							(Involved[i].Unit as CardAI).GenPlan(Involved, Involved[i]);
-							(Involved[i].Unit as CardAI).PreferredTarget = -1;
+							// (Involved[i].Unit as CardAI).PreferredTarget = -1;
 						}
 
 						Involved[i].Effect = 0; // this resets the current effect on the player,
@@ -231,7 +231,7 @@ namespace Card_Test {
 			TextUI.PrintFormatted("You tell " + Involved[data[0]].Unit.Name + " to target " + Involved[data[1]].Unit.Name);
 
 			(Involved[data[0]].Unit as CardAI).Plan.ClearPlan();
-			(Involved[data[0]].Unit as CardAI).PreferredTarget = data[1];
+			// (Involved[data[0]].Unit as CardAI).PreferredTarget = data[1];
 			(Involved[data[0]].Unit as CardAI).GenPlan(Involved, Involved[data[0]]);
 
 			TextUI.Wait();

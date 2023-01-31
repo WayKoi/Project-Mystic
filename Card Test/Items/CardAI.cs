@@ -15,7 +15,6 @@ namespace Card_Test {
 		private double Accuracy, TempAccuracy = 0; // how accurate their plays are
 		public Drops Drop;
 		public int MaxPlay;
-		public int PreferredTarget = -1;
 
 		public int FringeSize = 6;
 
