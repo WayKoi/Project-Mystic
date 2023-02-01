@@ -39,6 +39,13 @@ namespace Card_Test.Tables {
 
 		public static AIEntry MBody = new AIEntry("Mannequin Body", 100, 2, "MBody", DropTable.BossC, 70, 80, 2);
 
+		public static AIEntry Boar = new AIEntry("Boar", 50, 3, "boar", DropTable.BasicC, 50, 50, 2);
+		public static AIEntry GiantSpider = new AIEntry("Giant Spider", 80, 3, "giantspider", DropTable.BasicC, 50, 70, 2);
+		public static AIEntry Mice = new AIEntry("Mice", 100, 4, "mice", DropTable.BasicC, 40, 100, 4);
+		public static AIEntry SproutWizard = new AIEntry("Sprout Wizard", 120, 3, "sproutwizard", DropTable.RareB, 20, 100, 2);
+		
+		public static AIEntry Mammoth = new AIEntry("Mammoth", 250, 4, "mammoth", DropTable.BossC, 70, 100, 2);
+
 		// floor 4
 		public static AIEntry Vampire = new AIEntry("Vampire", 120, 6, "Vampire", DropTable.RareC, 30, 100, 2);
 		public static AIEntry Zombie = new AIEntry("Zombie", 80, 4, "Zombie", DropTable.BasicD, 70, 50, 2);
@@ -47,7 +54,7 @@ namespace Card_Test.Tables {
 		public static AIEntry Banshee = new AIEntry("Banshee", 45, 6, "Banshee", DropTable.BasicD, 30, 90, 2);
 		public static AIEntry Poltergeist = new AIEntry("Poltergeist", 50, 3, "Poltergeist", DropTable.BasicD, 30, 90, 2);
 
-		public static AIEntry Demon = new AIEntry("Demon", 250, 4, "Demon", DropTable.BossD, 80, 80, 2);
+		public static AIEntry Demon = new AIEntry("Demon", 300, 4, "Demon", DropTable.BossD, 80, 80, 2);
 
 		// floor 5
 		public static AIEntry Mimic = new AIEntry("Mimic", 200, 4, "Mimic", DropTable.RareD, 60, 80, 2);
@@ -56,7 +63,7 @@ namespace Card_Test.Tables {
 		public static AIEntry MGolem = new AIEntry("Mineral Golem", 50, 2, "MineralGolem", DropTable.BasicEA, 90, 50, 1);
 		public static AIEntry Imp = new AIEntry("Imp", 30, 2, "Imp", DropTable.BasicEA, 90, 80);
 
-		public static AIEntry Warlock = new AIEntry("Warlock", 300, 4, "Warlock", DropTable.BossE, 80, 100, 2);
+		public static AIEntry Warlock = new AIEntry("Warlock", 400, 4, "Warlock", DropTable.BossE, 80, 100, 2);
 
 		// floor 6
 		// floor 7

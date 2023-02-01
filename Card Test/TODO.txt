@@ -66,9 +66,12 @@ Alt Floors (-- means not in yet)
 			Camel
 	T2
 		Overgrowth II --
-			
+			Boar
+			Giant Spider
+			Mice
+			Plant Wizard
 
-			Elephant
+			Mammoth
 		Ivory Halls I
 			M leg
 			M arm

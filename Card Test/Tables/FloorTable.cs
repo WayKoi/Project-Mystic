@@ -29,12 +29,20 @@ namespace Card_Test.Tables {
             50, 1
         );
 
-        public static FloorGen IvoryHalls = new FloorGen("Ivory Halls", 2,
+        public static FloorGen IvoryHalls = new FloorGen("Ivory Halls I", 2,
             7, 6, 6, 4, 3,
             new RoomGen(1, 1, 2, 3, new int[] { 0, 0, 3 }, new int[] { 0 }, new int[] { 2, 3 }),
             BossTable.Mannequin,
             BattleTable.IvoryHalls,
             50, 1
+        );
+
+        public static FloorGen OvergrowthII = new FloorGen("Overgrowth II", 2,
+            8, 4, 6, 4, 3,
+            new RoomGen(1, 1, 2, 3, new int[] { 0, 0, 3 }, new int[] { 0 }, new int[] { 2, 3 }),
+            BossTable.Mammoth,
+            BattleTable.OvergrowthII,
+            1, 10
         );
 
         public static FloorGen Catacombs = new FloorGen("Catacombs", 3,
@@ -80,7 +88,8 @@ namespace Card_Test.Tables {
 
         public static FloorPool TierTwo = new FloorPool(
             new FPoolEntry[] {
-                new FPoolEntry(IvoryHalls, 1)
+                new FPoolEntry(IvoryHalls, 1),
+                new FPoolEntry(OvergrowthII, 1)
             }
         );
 

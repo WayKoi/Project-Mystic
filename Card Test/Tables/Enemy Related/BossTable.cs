@@ -27,6 +27,10 @@ namespace Card_Test.Tables {
 			EnemyTable.MLeg
 		});
 
+		public static Boss Mammoth = new Boss(new AIEntry[] {
+			EnemyTable.Mammoth
+		});
+
 		public static Boss Demon = new Boss(new AIEntry[] {
 			EnemyTable.Demon
 		});

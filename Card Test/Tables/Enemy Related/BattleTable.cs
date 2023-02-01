@@ -57,6 +57,24 @@ namespace Card_Test.Tables {
 			}, 1)
 		};
 
+		public static BattlePool[] OvergrowthII = {
+			new BattlePool(1, 2, new BTableEntry[] {
+				new BTableEntry(EnemyTable.Boar, 45),
+				new BTableEntry(EnemyTable.Mice, 10, 1),
+				new BTableEntry(EnemyTable.GiantSpider, 45, 1)
+			}, 7),
+
+			new BattlePool(2, 3, new BTableEntry[] {
+				new BTableEntry(EnemyTable.Boar, 45),
+				new BTableEntry(EnemyTable.Mice, 10, 1),
+				new BTableEntry(EnemyTable.GiantSpider, 45, 1)
+			}, 2),
+
+			new BattlePool(1, 1, new BTableEntry[] {
+				new BTableEntry(EnemyTable.SproutWizard, 1)
+			}, 1)
+		};
+
 		public static BattlePool[] Catacombs = {
 			new BattlePool(1, 2, new BTableEntry[] {
 				new BTableEntry(EnemyTable.Zombie, 20, 1),
