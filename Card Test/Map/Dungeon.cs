@@ -6,91 +6,18 @@ using Card_Test.Tables;
 namespace Card_Test.Map {
     public class Dungeon {
         public List<Floor> Floors = new List<Floor>();
-        private int FloorNum = 0;
         private MenuItem[] MoveMenu;
         public bool GameRunning = true;
 
-        private FloorGen[] FloorPlans = {
-            new FloorGen(
-                new int[] { 4, 3, 4, 2, 2 },
-                new int[] { 1, 40 },
-                new int[] { 10, 1 },
-                new int[] { 1, 0 },
-                new int[] { 1, 0, 0, 0 },
-                new int[] { 1, 1 },
-                new int[] { 0, 0, 0 },
-                new int[] { 1, 2 },
-                BossTable.Beetle,
-                EventTable.BTableA/*,
-				null,
-				null,
-				new TRoom[] { new TRoom(7), new TRoom(7) }*/
-			),
+        private Floor CurrentFloor = null;
 
-            new FloorGen(
-                new int[] { 7, 5, 5, 4, 2 },
-                new int[] { 1, 40 },
-                new int[] { 50, 1 },
-                new int[] { 1, 1 },
-                new int[] { 2, 0, 0, 0 },
-                new int[] { 1, 1 },
-                new int[] { 0, 0, 0 },
-                new int[] { 2, 3 },
-                BossTable.Salamander,
-                EventTable.BTableB
-            ),
-
-            new FloorGen(
-                new int[] { 7, 6, 6, 4, 3 },
-                new int[] { 2, 60 },
-                new int[] { 50, 1 },
-                new int[] { 1, 1 },
-                new int[] { 2, 0, 0, 1 },
-                new int[] { 1, 1 },
-                new int[] { 1, 0, 0 },
-                new int[] { 3, 4 },
-                BossTable.Mannequin,
-                EventTable.BTableC
-            ),
-
-            new FloorGen(
-                new int[] { 7, 7, 7, 4, 3 },
-                new int[] { 2, 60 },
-                new int[] { 50, 1 },
-                new int[] { 1, 1 },
-                new int[] { 3, 0, 0, 0 },
-                null,
-                new int[] { 0, 1, 1 },
-                new int[] { 4, 4 },
-                BossTable.Demon,
-                EventTable.BTableD
-            ),
-
-            new FloorGen(
-                new int[] { 7, 7, 8, 5, 3 },
-                new int[] { 2, 60 },
-                new int[] { 50, 1 },
-                new int[] { 2, 1 },
-                new int[] { 2, 0, 0, 1 },
-                new int[] { 1, 1 },
-                new int[] { 2, 0, 0 },
-                new int[] { 5, 5 },
-                BossTable.Warlock,
-                EventTable.BTableE
-            ),
-            // Temp Floor 6
-            new FloorGen(
-                new int[] { 7, 7, 8, 5, 3 },
-                new int[] { 2, 60 },
-                new int[] { 50, 1 },
-                new int[] { 0, 0 },
-                new int[] { 0, 2, 2, 2 },
-                new int[] { 1, 1 },
-                new int[] { 0, 5, 5 },
-                new int[] { 0, 0 },
-                BossTable.Warlock,
-                EventTable.BTableE
-            )
+        private FloorPool[] FloorPools = {
+            FloorTable.TierZero,
+            FloorTable.TierOne,
+            FloorTable.TierTwo,
+            FloorTable.TierThree,
+            FloorTable.TierFour,
+            FloorTable.TierFive
         };
 
         public void Init() {
@@ -100,21 +27,30 @@ namespace Card_Test.Map {
                 new MenuItem(new string[] { "View", "V" }, ViewRoom, ParseMove, "look around the room"),
                 new MenuItem(new string[] { "Edit", "E" }, EditDeck, ParseMove, "edit your deck"),
                 new MenuItem(new string[] { "Inventory", "I" }, ViewCharacter, ParseMove, "view your character"),
+                new MenuItem(new string[] { "Restart", "Res" }, EndGame, TextUI.DummyParse, "Restart the game"),
                 new MenuItem(new string[] { "Skip" }, SkipTo, TextUI.Parse, null),
                 new MenuItem(new string[] { "Reveal" }, RevealFloor, ParseMove, null)
             };
 
-			for (int i = 0; i < FloorPlans.Length; i++) {
-                FloorPlans[i].StartRoom = MoveUp;
-                FloorPlans[i].EndRoom = MoveDown;
+			for (int i = 0; i < FloorPools.Length; i++) {
+                FloorGen gen = FloorPools[i].Roll();
+                Floor add = new Floor(gen);
 
-                Floor add = new Floor(FloorPlans[i]);
+                add.Link = this;
+
+                if (i != 0) {
+                    add.ChangeUpLink(Floors[i - 1]);
+                    Floors[i - 1].ChangeDownLink(add);
+                }
+
 				Floors.Add(add);
 			}
+
+            CurrentFloor = Floors[0];
 		}
 
         public bool EditDeck (int[] dum) {
-            return Global.Run.Player.Cards.EditDeck();
+            return Global.Run.Player.Cards.EditDeck(true);
         }
 
         public void Run() {
@@ -124,12 +60,13 @@ namespace Card_Test.Map {
             }
         }
 
-        public void EndGame () {
+        public bool EndGame (int[] dum = null) {
             GameRunning = false;
+            return true;
         }
 
         public bool RevealFloor(int[] dum) {
-			Floors[FloorNum].RevealFloor();
+            CurrentFloor.RevealFloor();
 			TextUI.PrintFormatted("You cheat and reveal the whole map, press enter to continue");
 			Console.ReadLine();
 
@@ -137,23 +74,24 @@ namespace Card_Test.Map {
 		}
 
         public bool SkipTo(int[] to) {
-            if (to.Length < 1 || to[0] < 1 || to[0] > Floors.Count) { return false; }
-            FloorNum = to[0] - 1;
-            TextUI.PrintFormatted("You cheat your way to floor " + to[0] + ", press enter to continue");
+            if (CurrentFloor == null || CurrentFloor.Down == null) { return false; }
+
+            CurrentFloor = CurrentFloor.Down;
+            TextUI.PrintFormatted("You cheat your way to " + CurrentFloor.Name + ", press enter to continue");
             Console.ReadLine();
 
             return true;
         }
 
         public bool ActivateRoom(int[] dum) {
-			Room point = Floors[FloorNum].GetCurrentPosition();
+			Room point = CurrentFloor.GetCurrentPosition();
 			point.Active();
 
 			return true;
 		}
 
         public bool ViewRoom(int[] dum) {
-			Room point = Floors[FloorNum].GetCurrentPosition();
+			Room point = CurrentFloor.GetCurrentPosition();
 			TextUI.PrintFormatted("You look around the room");
 			TextUI.PrintFormatted(point.GetDescription());
 			TextUI.PrintFormatted("Press enter to continue");
@@ -167,60 +105,50 @@ namespace Card_Test.Map {
             return true;
         }
 
-        public void MoveUp(int dum, int dumm) {
-            if (FloorNum <= 0) {
-                TextUI.PrintFormatted("You cannot move up a floor, press enter to continue");
-                Console.ReadLine();
-                return;
+        public void ChangeFloor (Floor to) {
+            if (to == null) {
+                TextUI.PrintFormatted("You cannot move to that floor");
+            } else {
+                TextUI.PrintFormatted("You move to " + to.Name);
+                CurrentFloor = to;
             }
 
-            TextUI.PrintFormatted("You move up a floor, press enter to continue");
-            Console.ReadLine();
-            FloorNum--;
-        }
-
-        public void MoveDown(int dum, int dumm) {
-            if (FloorNum >= Floors.Count - 1) {
-                TextUI.PrintFormatted("You cannot move down a floor, press enter to continue");
-                Console.ReadLine();
-                return;
-            }
-
-            TextUI.PrintFormatted("You move down a floor, press enter to continue");
-            Console.ReadLine();
-            FloorNum++;
+            TextUI.Wait();
         }
 
         public bool Move(int[] movement) {
 			if (movement == null || movement.Length == 0) { return false; }
 			if (movement[0] == -1) { return false; }
 
-			return Floors[FloorNum].MoveTo(movement[0]);
+			return CurrentFloor.MoveTo(movement[0]);
 		}
 
         public int[] ParseMove(string input) {
             int[] ret = { -1 };
+            input = input.ToLower();
+
             switch (input) {
                 case "w": ret[0] = 0; break;
                 case "d": ret[0] = 1; break;
                 case "s": ret[0] = 2; break;
                 case "a": ret[0] = 3; break;
             }
+
             return ret;
         }  
 
         public void PrintScene() {
 			Console.Clear();
-			// TextUI.PrintFormatted(new string(' ', Floors[FloorNum].Width * 3 + 7) + "  W");
-			TextUI.PrintFormatted("Floor " + (FloorNum + 1));
-			// TextUI.PrintFormatted(new string(' ', Floors[FloorNum].Width * 3 + 7) + "  S\n");
-			TextUI.PrintFormatted(Floors[FloorNum].GetCurrentRoomDetails());
-			// Ω
-			string floor = Floors[FloorNum].ToString();
 
-			TextUI.PrintFormatted("\n" + floor);
+            if (CurrentFloor != null) {
+			    TextUI.PrintFormatted("\n\t" + CurrentFloor.Name + "\n");
+			    TextUI.PrintFormatted(CurrentFloor.GetCurrentRoomDetails());
+			    string floor = CurrentFloor.ToString();
 
-			TextUI.PrintFormatted(Global.Run.Player + " Material : " + Global.Run.Player.Material);
+			    TextUI.PrintFormatted("\n" + floor);
+            }
+
+            TextUI.PrintFormatted(Global.Run.Player + " Material : " + Global.Run.Player.Material);
 			Console.WriteLine();
 		}
     }

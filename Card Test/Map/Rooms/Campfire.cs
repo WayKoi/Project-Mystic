@@ -22,19 +22,17 @@ namespace Card_Test.Map.Rooms {
 				TextUI.PrintFormatted("You" + (Global.Run.Players.Count > 1 ? ", and your party" : "") + " sit by the campfire");
 
 				foreach (Character unit in Global.Run.Players) {
-					int amt = unit.Heal((int)(unit.MaxHealth / 100.0 * healamt));
+					int amt = unit.Heal((int)(Math.Min(unit.MaxHealth, 160) / 100.0 * healamt));
 					TextUI.PrintFormatted(unit.Name + " Heals " + amt + " " + unit.HealthToString());
 				}
 
 				if (uses + 1 == max) {
 					ExtraDesc = "\nThe fire seems to have gone out";
 					Symbol = "⁴μ⁰";
-					Console.ForegroundColor = ConsoleColor.Red;
-					TextUI.PrintFormatted("The fire has gone out!");
-					Console.ResetColor();
+					TextUI.PrintFormatted("³The fire has gone out!⁰");
 				}
 			} else {
-				TextUI.PrintFormatted("The fire has gone out!");
+				TextUI.PrintFormatted("³The fire has gone out!⁰");
 			}
 
 			TextUI.PrintFormatted("Press enter to continue");

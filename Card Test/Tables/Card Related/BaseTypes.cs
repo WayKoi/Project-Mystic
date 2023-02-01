@@ -62,6 +62,8 @@ namespace Card_Test.Tables {
 		}
 
 		public static int Translate(string type) {
+			type = type.ToLower();
+
 			switch (type) {
 				case "magic":    return 0;
 				case "physical": return 1;

@@ -5,14 +5,16 @@ using System.Text;
 
 namespace Card_Test.Base {
 	public abstract class Plannable {
-		public int ManaCost = 0, TargetType = 0;
+		public int ManaCost = 0, FusionCost = 0, SideCost = 0, MultiSlots = 0, TargetType = 0;
 		public bool Instant = false, Passive = false, Targeting = true;
 
-		public abstract void UpdateValues(Character caster);
-		public abstract bool Additional(PlayReport report);
+		public abstract void UpdateValues(Character Caster);
+		public abstract bool Additional(Character Caster, PlayReport report);
 		public abstract bool Play(Character Caster, List<BattleChar> Targets, int Specific, PlayReport report = null);
 		public abstract void Cancel(Character Caster);
 		public abstract void Plan(Character Caster);
+		public virtual bool RemoveFromPlan(Character Caster) { return true; }
+		public virtual Card CardEquiv() { return null; }
 	}
 
 	public class PlanStep {
@@ -22,6 +24,8 @@ namespace Card_Test.Base {
 		public List<BattleChar> Targets;
 		public int Specific;
 
+		public bool Removable = true;
+
 		public PlanStep (Plannable plan, Character caster, List<BattleChar> targs, int specific = -1) {
 			Planned = plan;
 			Caster = caster;
@@ -29,7 +33,7 @@ namespace Card_Test.Base {
 			Specific = specific;
 		}
 
-		private bool TestPlan (PlayReport report) {
+		public bool TestPlan (PlayReport report) {
 			Planned.UpdateValues(Caster);
 
 			if (Planned.Passive) { 
@@ -40,6 +44,21 @@ namespace Card_Test.Base {
 			if (Caster.Mana < Planned.ManaCost) {
 				if (report != null) { report.Additional.Add("Not enough mana to add to plan"); } 
 				return false; 
+			}
+
+			if (Caster.SideCastCounters < Planned.SideCost) {
+				if (report != null) { report.Additional.Add("Not enough sidecast counters to add to plan"); }
+				return false;
+			}
+
+			if (Caster.FusionCounters < Planned.FusionCost) {
+				if (report != null) { report.Additional.Add("Not enough fusion counters to add to plan"); }
+				return false;
+			}
+
+			if (Caster.MultiCastSlots < Planned.MultiSlots) {
+				if (report != null) { report.Additional.Add("Not enough open multi casting slots to add to plan"); }
+				return false;
 			}
 
 			if (Planned.Targeting) {
@@ -82,7 +101,7 @@ namespace Card_Test.Base {
 				Specific = -1;
 			}
 
-			return Planned.Additional(report);
+			return Planned.Additional(Caster, report);
 		}
 
 		public bool Plan (PlayReport report) {
@@ -90,6 +109,9 @@ namespace Card_Test.Base {
 			if (!check) { return false; }
 
 			Caster.Mana -= Planned.ManaCost;
+			Caster.SideCastCounters -= Planned.SideCost;
+			Caster.FusionCounters -= Planned.FusionCost;
+			Caster.MultiCastSlots -= Planned.MultiSlots;
 			Planned.Plan(Caster);
 
 			return true;
@@ -97,8 +119,10 @@ namespace Card_Test.Base {
 
 		public void PlayStep (PlayReport report) {
 			// PlayReport report = new PlayReport(Caster, Planned);
-			report.Caster = Caster;
-			report.Played = Planned;
+			if (report != null) {
+				report.Caster = Caster;
+				report.Played = Planned;
+			}
 
 			bool check = Planned.Play(Caster, Targets, Specific, report);
 			if (!check) { Cancel(); }
@@ -106,6 +130,9 @@ namespace Card_Test.Base {
 
 		public void Cancel () {
 			Caster.Mana += Planned.ManaCost;
+			Caster.SideCastCounters += Planned.SideCost;
+			Caster.FusionCounters += Planned.FusionCost;
+			Caster.MultiCastSlots += Planned.MultiSlots;
 			Planned.Cancel(Caster);
 		}
 
@@ -142,9 +169,14 @@ namespace Card_Test.Base {
 
 		public bool RemoveFromPlan (int ind) {
 			if (ind < 0 || ind >= Steps.Count) { return false; }
-			Steps[ind].Cancel();
-			Steps.RemoveAt(ind);
-			return true;
+			
+			if (Steps[ind].Removable) {
+				Steps[ind].Cancel();
+				Steps.RemoveAt(ind);
+				return true;
+			}
+
+			return false;
 		}
 
 		public void ClearPlan () {
@@ -153,13 +185,17 @@ namespace Card_Test.Base {
 			}
 		}
 
+		public void ResetPlan() {
+			Steps = new List<PlanStep>();
+		}
+
 		public string PlanOnTarget (int Target) {
 			List<string> parts = new List<string>();
 
 			for (int i = 0; i < Steps.Count; i++) {
 				if (Steps[i].Specific == Target) {
 					string step = Steps[i].ToString();
-					parts.Add(new string(' ', step.Split('\n')[0].Length / 2) + (i + 1).ToString() + "\n" + step);
+					parts.Add(new string(' ', TextUI.GetLength(step.Split('\n')[0]) / 2) + (i + 1).ToString() + "\n" + step);
 				}
 			}
 
@@ -167,15 +203,23 @@ namespace Card_Test.Base {
 		}
 
 		public void ExecutePlan () {
+			List<PlanStep> steps = new List<PlanStep>();
 			while (Steps.Count > 0) {
 				PlayReport report = new PlayReport();
 				
 				PlanStep step = Steps[0];
 				Steps.RemoveAt(0);
-				step.PlayStep(report);
 
+				if (!step.Planned.RemoveFromPlan(step.Caster)) {
+					steps.Add(step);
+					step.Removable = false;
+				}
+
+				step.PlayStep(report);
 				report.PrintReport();
 			}
+
+			Steps = steps;
 		}
 
 		public int PlanSize () {

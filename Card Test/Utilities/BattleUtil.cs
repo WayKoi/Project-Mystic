@@ -16,5 +16,17 @@ namespace Card_Test.Utilities {
 			return ret;
 		}
 
+		public static BattleChar FindCharacter(List<BattleChar> batts, Character find) {
+			int battCount = batts.Count;
+			
+			for (int i = 0; i < battCount; i++) {
+				if (batts[i].Unit == find) {
+					return batts[i];
+				}
+			}
+
+			return null;
+		}
+
 	}
 }

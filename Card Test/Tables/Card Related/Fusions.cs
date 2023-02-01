@@ -151,9 +151,9 @@ namespace Card_Test.Tables {
 			new Fusion("physical", "any", PhysTierChange, "any")
 		};
 
-		public static ModFusion[] Mods = {
-			new ModFusion(1, 1, 2),
-			new ModFusion(3, -1, 3)
+		public static ModFusion[] ModFusions = {
+			new ModFusion(Mods.Translate("jumping"), Mods.Translate("jumping"), SubMods.Translate("aoe")),
+			new ModFusion(Mods.Translate("summon"), -1, Mods.Translate("summon"))
 		};
 
 		private static void TimeSubFusion(Card A, Card B, Card Result) {
@@ -265,17 +265,17 @@ namespace Card_Test.Tables {
 			}
 
 			bool fusionHappend = false;
-			for (int i = 0; i < Mods.Length; i++) {
+			for (int i = 0; i < ModFusions.Length; i++) {
 				bool[,] SideCheck = new bool[2, 2];
 				
-				for (int ii = 0; ii < Mods[i].A.Length; ii++) {
-					SideCheck[0, 0] = Mods[i].A[ii] == A.Mod || Mods[i].A[ii] == -1 || SideCheck[0, 0];
-					SideCheck[1, 0] = Mods[i].A[ii] == B.Mod || Mods[i].A[ii] == -1 || SideCheck[1, 0];
+				for (int ii = 0; ii < ModFusions[i].A.Length; ii++) {
+					SideCheck[0, 0] = ModFusions[i].A[ii] == A.Mod || ModFusions[i].A[ii] == -1 || SideCheck[0, 0];
+					SideCheck[1, 0] = ModFusions[i].A[ii] == B.Mod || ModFusions[i].A[ii] == -1 || SideCheck[1, 0];
 				}
 
-				for (int ii = 0; ii < Mods[i].B.Length; ii++) {
-					SideCheck[0, 1] = Mods[i].B[ii] == A.Mod || Mods[i].B[ii] == -1 || SideCheck[0, 1];
-					SideCheck[1, 1] = Mods[i].B[ii] == B.Mod || Mods[i].B[ii] == -1 || SideCheck[1, 1];
+				for (int ii = 0; ii < ModFusions[i].B.Length; ii++) {
+					SideCheck[0, 1] = ModFusions[i].B[ii] == A.Mod || ModFusions[i].B[ii] == -1 || SideCheck[0, 1];
+					SideCheck[1, 1] = ModFusions[i].B[ii] == B.Mod || ModFusions[i].B[ii] == -1 || SideCheck[1, 1];
 				}
 
 				// sidecheck
@@ -285,7 +285,7 @@ namespace Card_Test.Tables {
 
 				if ((SideCheck[0, 0] && SideCheck[1, 1]) || (SideCheck[0, 1] && SideCheck[1, 0])) {
 					// mod fusion occurs
-					Result.ChangeMod(Mods[i].Mod);
+					Result.ChangeMod(ModFusions[i].Mod);
 					fusionHappend = true;
 					break;
 				}

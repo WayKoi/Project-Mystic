@@ -57,6 +57,7 @@ namespace Sorting {
 	}
 
 	public static class Compare {
+
 		public static bool String(object A, object B) {
 			string a = A as string;
 			string b = B as string;
@@ -84,10 +85,10 @@ namespace Sorting {
 			return (A as BattleChar).Side > (B as BattleChar).Side;
 		}
 
-		public static bool Move (object A, object B) {
+		/*public static bool Move (object A, object B) {
 			if (!(A is Move) || !(B is Move)) { return false; }
 			return (A as Move).value > (B as Move).value;
-		}
+		}*/
 
 		public static bool Card(object A, object B) {
 			if (!(A is Card) || !(B is Card)) { return false; }
@@ -139,10 +140,10 @@ namespace Sorting {
 			return ca.Element.Tier < cb.Element.Tier;
 		}
 
-		public static bool PossibleTarg (object A, object B) {
+		/*public static bool PossibleTarg (object A, object B) {
 			if (!(A is PossibleTarg) || !(B is PossibleTarg)) { return false; }
 			return (A as PossibleTarg).Value < (B as PossibleTarg).Value;
-		}
+		}*/
 
 		public static bool ShopItem (object A, object B) {
 			if (!(B is ShopItem) || !(B is ShopItem)) { return false; }
@@ -177,6 +178,15 @@ namespace Sorting {
 
 			return a.Min > b.Min;
 
+		}
+
+		public static bool SimNode(object A, object B) {
+			if (!(A is SimNode) || !(B is SimNode)) { return false; }
+
+			SimNode a = A as SimNode;
+			SimNode b = B as SimNode;
+
+			return a.Value < b.Value;
 		}
 	}
 }

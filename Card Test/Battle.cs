@@ -1,4 +1,5 @@
 ﻿using Card_Test.Base;
+using Card_Test.Items;
 using Card_Test.Tables;
 using Card_Test.Utilities;
 using Sorting;
@@ -29,13 +30,16 @@ namespace Card_Test {
 
 			/*Left.AddRange(players);
 			Right.AddRange(enemies);*/
-
+			// new MenuItem(new string[] { "Target", "T" }, TellTarget, TextUI.Parse, "tell a friendly party member who to target\n  Target (who you are telling) (who they are targeting)"),
+			
 			BattleMenu = new MenuItem[] {
 				new MenuItem(new string[] { "Plan", "P" }, PlayerAddPlan, TextUI.Parse, "plan or cast a move\n  Plan (Card to play) (Target)"),
+				new MenuItem(new string[] { "Fuse", "F" }, FusionPlan, TextUI.Parse, "Fuse Cards together, costs Fusion counters\n  Fuse (Cards) (Target)"),
+				new MenuItem(new string[] { "Side", "Si" }, SidePlan, TextUI.Parse, "Side cast a card, costs a side cast counter and half the mana of the card\n  Side (Card) (Target)"),
+				new MenuItem(new string[] { "Multi", "M" }, MultiPlan, TextUI.Parse, "Multi cast a card, Needs an open slot\n  Multi (Card) (Target)"),
 				new MenuItem(new string[] { "Remove", "R" }, PlayerRemovePlan, TextUI.Parse, "remove part of the plan\n  r (plan to remove)"),
 				new MenuItem(new string[] { "Stone", "S" }, Stone, TextUI.Parse, "use a stones effect\n Stone (Stone #) (Target optional)"),
 				new MenuItem(new string[] { "Stone?", "S?" }, StoneInfo, TextUI.Parse, "look at a stones info\n S? (Stone #)" ),
-				new MenuItem(new string[] { "Target", "T" }, TellTarget, TextUI.Parse, "tell a friendly party member who to target\n  Target (who you are telling) (who they are targeting)"),
 				new MenuItem(new string[] { "Clear", "Cl" }, PlayerClearPlan, TextUI.Parse, "clear the current plan"),
 				new MenuItem(new string[] { "Execute", "E" }, PlayPlanMenu, TextUI.Parse, "execute the current plan and play out the turn")
 			};
@@ -51,6 +55,11 @@ namespace Card_Test {
 				}
 			}
 
+			for (int i = 0; i < Involved.Count; i++) {
+				Involved[i].Unit.Plan.ResetPlan();
+				Involved[i].Unit.MultiCastSlots = Involved[i].Unit.MaxMulti;
+			}
+
 			PlayReport StatusReport;
 
 			// start the battle
@@ -62,11 +71,14 @@ namespace Card_Test {
 					if (Involved[i].Unit.HasHealth()) {
 						Involved[i].Unit.DrawCard();             // draw card
 						Involved[i].Unit.Mana = Math.Max(Involved[i].Unit.MaxMana - Involved[i].Overload, 0); // refresh mana
-						Involved[i].Unit.Plan.ClearPlan();            // clear the plan
+						// Involved[i].Unit.Plan.ClearPlan();            // clear the plan
+
+						Involved[i].Unit.FusionCounters = Involved[i].Unit.MaxFusion; // refresh counters
+						Involved[i].Unit.SideCastCounters = Involved[i].Unit.MaxSide; // refresh counters
 
 						if (Involved[i].Unit is CardAI) {        // generate a plan if they are an AI
 							(Involved[i].Unit as CardAI).GenPlan(Involved, Involved[i]);
-							(Involved[i].Unit as CardAI).PreferredTarget = -1;
+							// (Involved[i].Unit as CardAI).PreferredTarget = -1;
 						}
 
 						Involved[i].Effect = 0; // this resets the current effect on the player,
@@ -113,7 +125,9 @@ namespace Card_Test {
 				StatusReport = new PlayReport();
 
 				for (int i = 0; i < Involved.Count; i++) {
-					Involved[i].RunStatusStart(StatusReport);
+					if (Involved[i].Unit.HasHealth()) {
+						Involved[i].RunStatusStart(StatusReport);
+					}
 				}
 
 				StatusReport.PrintReport();
@@ -219,7 +233,7 @@ namespace Card_Test {
 			TextUI.PrintFormatted("You tell " + Involved[data[0]].Unit.Name + " to target " + Involved[data[1]].Unit.Name);
 
 			(Involved[data[0]].Unit as CardAI).Plan.ClearPlan();
-			(Involved[data[0]].Unit as CardAI).PreferredTarget = data[1];
+			// (Involved[data[0]].Unit as CardAI).PreferredTarget = data[1];
 			(Involved[data[0]].Unit as CardAI).GenPlan(Involved, Involved[data[0]]);
 
 			TextUI.Wait();
@@ -251,7 +265,7 @@ namespace Card_Test {
 			bool check = Player.Plan.PlanOrCast(report, Global.Run.Player.Stones[data[0]], Involved, (data.Length > 1 ? data[1] : -1));
 			report.PrintReport();
 
-			if (check && plansize == Player.Plan.PlanSize()) {
+			if ((!check && plansize == Player.Plan.PlanSize()) || Global.Run.Player.Stones[data[0]].Instant) {
 				TextUI.Wait();
 			}
 
@@ -281,6 +295,71 @@ namespace Card_Test {
 			int plansize = Player.Plan.PlanSize();
 
 			bool check = Player.Plan.PlanOrCast(report, toplan, Involved, (data.Length >= 2 ? data[1] : -1));
+			report.PrintReport();
+
+			if (check && plansize == Player.Plan.PlanSize()) {
+				TextUI.Wait();
+			}
+
+			return check;
+		}
+
+		public bool SidePlan(int[] data) {
+			if (data.Length < 1) { return false; }
+			if (data[0] < 1 || data[0] > Player.Hand.Count) { return false; }
+			data[0]--;
+
+			PlayReport report = new PlayReport();
+			Plannable toplan = new SidePlan(Player.Hand[data[0]]);
+			int plansize = Player.Plan.PlanSize();
+
+			bool check = Player.Plan.PlanOrCast(report, toplan, Involved, (data.Length >= 2 ? data[1] : -1));
+			report.PrintReport();
+
+			if (check && plansize == Player.Plan.PlanSize()) {
+				TextUI.Wait();
+			}
+
+			return check;
+		}
+
+		public bool MultiPlan(int[] data) {
+			if (data.Length < 1) { return false; }
+			if (data[0] < 1 || data[0] > Player.Hand.Count) { return false; }
+			data[0]--;
+
+			PlayReport report = new PlayReport();
+			Plannable toplan = new MultiPlan(Player.Hand[data[0]]);
+			int plansize = Player.Plan.PlanSize();
+
+			bool check = Player.Plan.PlanOrCast(report, toplan, Involved);
+			report.PrintReport();
+
+			if (check && plansize == Player.Plan.PlanSize()) {
+				TextUI.Wait();
+			}
+
+			return check;
+		}
+
+		public bool FusionPlan(int[] data) {
+			if (data.Length < 3) { return false; }
+			if (data[data.Length - 1] < 0 || data[data.Length - 1] >= Involved.Count) { return false; }
+
+			int target = data[data.Length - 1];
+			List<Card> Fuse = new List<Card>();
+
+			for (int i = 0; i < data.Length - 1; i++) {
+				if (data[i] < 1 || data[i] > Player.Hand.Count) { return false; }
+				if (Fuse.Contains(Player.Hand[data[i] - 1])) { return false; }
+				Fuse.Add(Player.Hand[data[i] - 1]);
+			}
+
+			PlayReport report = new PlayReport();
+			Plannable toplan = new FusionPlan(Fuse);
+			int plansize = Player.Plan.PlanSize();
+
+			bool check = Player.Plan.PlanOrCast(report, toplan, Involved, target);
 			report.PrintReport();
 
 			if (check && plansize == Player.Plan.PlanSize()) {
@@ -391,16 +470,18 @@ namespace Card_Test {
 
 			Console.WriteLine();
 			TextUI.PrintFormatted("-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-");
-			TextUI.PrintFormatted(Player.ManaToString());
+			TextUI.PrintFormatted(Player.ManaToString() + (Player.FusionsToString().Length > 0 ? "\n" + Player.FusionsToString() : "") + (Player.SidesToString().Length > 0 ? "\n" + Player.SidesToString() : ""));
 			TextUI.PrintFormatted("Current Hand");
 			TextUI.PrintFormatted(Player.HandToString());
 
 			string notarg = Player.Plan.PlanOnTarget(-1);
 
-			if (notarg != string.Empty) {
+			if (notarg != string.Empty || Player.MultiCastSlots != 0) {
 				TextUI.PrintFormatted("Current Plan");
+				TextUI.PrintFormatted(Player.MultiToString());
 				TextUI.PrintFormatted(notarg);
 			}
+
 			TextUI.PrintFormatted("-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-");
 		}
 	}
@@ -433,7 +514,7 @@ namespace Card_Test {
 			double mitigator = 0;
 			int broken = 0;
 
-			report.Affected.Add(this);
+			// report.Affected.Add(this);
 			// damage, healing, shields broken, shields added, reaction, effect, damage blocked
 			int[] reportInt = { 0, 0, 0, 0, 0, 0, 0 };
 
@@ -471,7 +552,8 @@ namespace Card_Test {
 				reportInt[0] = Unit.TakeDamage(damage, type);
 			}
 
-			report.AffectedEffects.Add(reportInt);
+			report.Steps.Add(new ReportStep(this, reportInt[0], 0, reportInt[2], reportInt[3], reportInt[4], reportInt[5], reportInt[6]));
+			// report.AffectedEffects.Add(reportInt);
 
 			return reportInt[0];
 		}
@@ -493,8 +575,9 @@ namespace Card_Test {
 			reportInt[1] = amt;
 
 			if (amt != 0) {
-				report.Affected.Add(this);
-				report.AffectedEffects.Add(reportInt);
+				/*report.Affected.Add(this);
+				report.AffectedEffects.Add(reportInt);*/
+				report.Steps.Add(new ReportStep(this, 0, reportInt[1], 0, 0, reportInt[4], reportInt[5], 0));
 			}
 
 			return amt;

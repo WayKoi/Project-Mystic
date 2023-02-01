@@ -244,7 +244,7 @@ namespace Card_Test.Tables {
 		public Summon(string name, string[] decks, int health, int mana, bool changeType = true, int acc = 100, int res = 100, int maxplay = 1, int chance = 1, int maxrolls = 0) : this(name, decks, new int[] { health }, new int[] { mana }, changeType, acc, res, maxplay, chance, maxrolls) { }
 
 		public CardAI Generate (int Type, int Tier) {
-			TDeck deck = Reader.ReadTDeck("Summon\\" + Decks[Math.Min(Decks.Length - 1, Tier)], (ChangeDeckType ? Type : -1));
+			TDeck deck = Reader.ReadTDeck("Summon/" + Decks[Math.Min(Decks.Length - 1, Tier)], (ChangeDeckType ? Type : -1));
 			string madeName = Name.Replace("[T]", Types.Search(Type).Name);
 			return new CardAI(madeName, Health[Math.Min(Health.Length - 1, Tier)], Mana[Math.Min(Mana.Length - 1, Tier)], deck, null, Response, Acc, MaxPlay);
 		}

@@ -133,7 +133,7 @@ namespace Card_Test {
 		}
 
 		// Overrides
-		public override bool Additional(PlayReport report) { return true; }
+		public override bool Additional(Character Caster, PlayReport report) { return true; }
 		public override void Cancel(Character Caster) { Caster.Hand.Add(this); }
 		public override void Plan(Character Caster) { Caster.Hand.Remove(this); }
 		public override void UpdateValues(Character caster) {
@@ -170,8 +170,12 @@ namespace Card_Test {
 			return true;
 		}
 
-		// String returning methods
-		public override string ToString() {
+        public override Card CardEquiv() {
+			return this;
+        }
+
+        // String returning methods
+        public override string ToString() {
 			CardType type = Types.Search(Type);
 
 			int frame = Types.Search(Type).Tier;

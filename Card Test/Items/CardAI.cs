@@ -1,18 +1,25 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
+using Card_Test.Base;
 using Card_Test.Files;
+using Card_Test.Items;
 using Card_Test.Tables;
 using Sorting;
 
 namespace Card_Test {
 	public class CardAI : Character {
 		// this class is the AI that plays as the enemy
-		private double RespondRate; // how often they actually play on their turn
+		private double RespondRate, TempResponse = 0; // how often they actually play on their turn
 		private double Accuracy, TempAccuracy = 0; // how accurate their plays are
 		public Drops Drop;
 		public int MaxPlay;
-		public int PreferredTarget = -1;
+
+		public int FringeSize = 6;
+		public int ContinueChance = 70; // the chance that the plan gets cut short
+
+		private List<SimWrapper> Possible; 
 
 		public CardAI(string name, int maxhealth, int maxmana, TDeck deck = null, Drops drop = null, int respondrate = 100, int accuracy = 100, int maxplay = 1) : base (name, maxhealth, maxmana, deck) {
 			RespondRate = respondrate;
@@ -30,287 +37,449 @@ namespace Card_Test {
 
 		public CardAI(AIEntry tab) : this (tab.Name, tab.MaxHealth, tab.MaxMana, Reader.ReadDeck(tab.Deck), tab.Drop, tab.RespondRate, tab.Accuracy, tab.MaxPlay) { }
 
-		public void GenPlan (List<BattleChar> Targets, BattleChar Self) {
-			// when we dont respond, accuracy goes up
-			if (Rand.Next(1, 101) > RespondRate) { TempAccuracy += 10; return; }
-			if (Hand.Count == 0) { return; }
-			if (!HasHealth()) { return; }
-			// list of all possible moves
-			// remove impossible moves
-			// give moves a value
-			// base on accuracy, choose a move
+		public void GenPlan(List<BattleChar> Targets, BattleChar Self) {
+			if (Global.Rand.Next(0, 100) > RespondRate + TempResponse) {
+				TempAccuracy += 5;
+				TempResponse += 10;
+				return;
+			}
 
-			List<int> Friendly = new List<int>();
-			List<int> Enemy    = new List<int>();
-			int SelfInd = 0;
+			Possible = new List<SimWrapper>();
+			int handcount = Hand.Count;
 
-			for (int i = 0; i < Targets.Count; i++) {
-				if (Targets[i].Side == Self.Side) {
-					Friendly.Add(i);
-				} else {
-					Enemy.Add(i);
-				}
+			for (int i = 0; i < handcount; i++) {
+				Possible.Add(new SimWrapper(Hand[i], i));
+			}
 
-				if (Targets[i] == Self) {
-					SelfInd = i;
+			// Add logic for planning fusions and sides and multis here
+			if (MultiCastSlots > 0) {
+				for (int i = 0; i < handcount; i++) {
+					Possible.Add(new SimWrapper(new MultiPlan(Hand[i]), i));
 				}
 			}
 
-			List<Move> moves = new List<Move>();
+			if (SideCastCounters > 0) {
+				for (int i = 0; i < handcount; i++) {
+					Possible.Add(new SimWrapper(new SidePlan(Hand[i]), i));
+				}
+			}
 
-			// first sweep gets all possible card plays
-			Sort.BubbleSort(Hand, Compare.Card);
-
-			int upper = (int) Math.Pow(2, Hand.Count);
-			for (int i = 1; i < upper; i++ ) {
-				Move move = new Move();
-				int count = Hand.Count;
-				int val = i;
-				while (count >= 0) {
-					if (val >= (int) Math.Pow(2, count)) {
-						val -= (int)Math.Pow(2, count);
-						move.Cards.Add(count);
+			if (FusionCounters > 0) {
+				for (int i = 0; i < handcount; i++) {
+					for (int ii = i + 1; ii < handcount; ii++) {
+						Possible.Add(new SimWrapper(new FusionPlan((new Card[] { Hand[i], Hand[ii] }).ToList()), new int[] { i, ii }));
 					}
-					count--;
 				}
-
-				moves.Add(move);
 			}
 
-			// sweep in the other direction as well
-			Sort.BubbleSort(Hand, Compare.InverseCard);
+			FieldSim Point = new FieldSim(Targets, Self.Side);
+			Point.Mana = Mana;
+			Point.Side = SideCastCounters;
+			Point.Multi = MultiCastSlots;
+			Point.Fusion = FusionCounters;
 
-			upper = (int)Math.Pow(2, Hand.Count);
-			for (int i = 1; i < upper; i++) {
-				Move move = new Move();
-				int count = Hand.Count;
-				int val = i;
-				while (count >= 0) {
-					if (val >= (int)Math.Pow(2, count)) {
-						val -= (int)Math.Pow(2, count);
-						move.Cards.Add(count);
+			SimNode Root = new SimNode(Point, null);
+
+			GenPlan(Root);
+
+			// traverse the tree based on value
+			SimNode travel = Root;
+			int desccount = travel.Desc.Count;
+
+			while (desccount > 0) {
+				Sort.BubbleSort(travel.Desc, Compare.SimNode);
+
+				for (int i = 0; i < desccount; i++) {
+					int check = Global.Rand.Next(0, 100);
+					if (check < Accuracy + TempAccuracy || i == desccount - 1) {
+						travel = travel.Desc[i];
+						break;
 					}
-					count--;
 				}
 
-				moves.Add(move);
+				desccount = travel.Desc.Count;
 			}
 
-			// second sweep removes ones that cost to much or are impossible
+			travel.GenPlan(this);
+			int plansize = Plan.PlanSize();
 
-			upper = moves.Count;
-			for (int i = 0; i < upper; i++) {
-				int cardamt = 0;
-				int subupper = moves[i].Cards.Count;
-				for (int ii = 0; ii < subupper; ii++) {
-					moves[i].cost += Hand[moves[i].Cards[ii]].Tier;
-					cardamt++;
-				}
-
-				if (moves[i].cost > Mana || cardamt > MaxPlay) {
-					moves.RemoveAt(i);
-					i--;
-					upper--;
-				}
-			}
-
-			if (moves.Count == 0) { return; }
-			// third sweep adds targets
-
-			upper = moves.Count;
-			for (int i = 0; i < upper; i++) {
-				int subupper = moves[i].Cards.Count;
-				for (int ii = 0; ii < subupper; ii++) {
-					Card card = Hand[moves[i].Cards[ii]];
-					int damage = (int)(Types.Search(card.Type).GetDamage(card.Tier) * GetAffinity(card.LookupType()));
-					int healing = (int)(Types.Search(card.Type).GetHealing(card.Tier) * GetAffinity(card.LookupType()));
-
-					if (damage > 0) {
-						// target enemy
-						List<PossibleTarg> targs = new List<PossibleTarg>();
-						for (int iii = 0; iii < Enemy.Count; iii++) {
-							if (Targets[Enemy[iii]].Unit.HasHealth()) {
-								int curEff = 0;
-								int subsubupper = moves[i].Targets.Count;
-								for (int iv = 0; iv < subsubupper; iv++) {
-									if (moves[i].Targets[iv] == Enemy[iii] && Targets[Enemy[iii]].Unit.HasHealth()) {
-										curEff = moves[i].TargetEffects[iv];
-									}
-								}
-
-								targs.Add(new PossibleTarg((int) (damage * Reactions.GetReaction(curEff, Types.Search(card.Type).GetEffect()).Mult), Enemy[iii]));
-							}
-						}
-
-						// find the best enemy
-						for (int iii = 0; iii < targs.Count; iii++) {
-							double percHealth = ((double) (Targets[targs[iii].Target].Unit.Health - targs[iii].Damage) / (double) (Targets[targs[iii].Target].Unit.MaxHealth));
-							int value = targs[iii].Damage;
-
-							if (percHealth <= 0) {	
-								value *= 3;
-							} else {
-								value = (int)(value * (1 + (1 - percHealth)));
-							}
-
-							if (targs[iii].Target == PreferredTarget) {
-								value *= 10;
-							}
-
-							targs[iii].Value = value;
-						}
-
-						Sort.BubbleSort(targs, Compare.PossibleTarg);
-						if (targs.Count == 0) { return; }
-
-						List<PossibleTarg> choosefrom = new List<PossibleTarg>();
-						for (int iii = 0; iii < targs.Count; iii++) {
-							if (iii > 0 && targs[iii].Value != targs[iii - 1].Value) {
-								break;
-							}
-							choosefrom.Add(targs[iii]);
-						}
-
-						int chosenTarg = Global.Rand.Next(0, choosefrom.Count);
-						moves[i].Targets.Add(choosefrom[chosenTarg].Target);
-						moves[i].TargetEffects.Add(Types.Search(card.Type).GetEffect());
-						moves[i].HealMult.Add(0);
-						damage = choosefrom[chosenTarg].Damage;
-					} else if (healing > 0) {
-						// target friendly
-						int mostHealed = 0;
-						int healedAmt = 0;
-						int healMult = 0;
-
-						for (int iii = 0; iii < Friendly.Count; iii++) {
-							if (Targets[Friendly[iii]].Unit.HasHealth()) {
-								double percFull = (double) Targets[Friendly[iii]].Unit.Health / (double) Targets[Friendly[iii]].Unit.MaxHealth;
-								int amt = Math.Min(Targets[Friendly[iii]].Unit.MaxHealth, Targets[Friendly[iii]].Unit.Health + healing) - Targets[Friendly[iii]].Unit.Health;
-								if (amt > healedAmt) {
-									mostHealed = iii;
-									healedAmt = amt;
-									healMult = (int) (1 / (percFull));
-								}
-							}
-						}
-
-						moves[i].Targets.Add(Friendly[mostHealed]);
-						moves[i].TargetEffects.Add(Types.Search(card.Type).GetEffect());
-						moves[i].HealMult.Add(healMult);
-						healing = healedAmt;
-					} else {
-						// some special effect is happening, like a shield
-						// hard code those cases
-						if (card.Type == 2) {	
-							// its a shield
-							moves[i].shields++;
-
-							int bestTarg = 0;
-							int highHealth = 0;
-							foreach (int targ in Friendly) {
-								if (highHealth < Targets[targ].Unit.Health) {
-									highHealth = Targets[targ].Unit.Health;
-									bestTarg = targ;
-								}
-							}
-
-							moves[i].Targets.Add(bestTarg);
-							moves[i].TargetEffects.Add(0);
-							moves[i].HealMult.Add(0);
-						} else {
-							// its something that the AI cannot play
-							moves.RemoveAt(i);
-							i--;
-							upper--;
-							break;
-						}
+			for (int i = 0; i < plansize; i++) {
+				int check = Global.Rand.Next(0, 100);
+				if (check >= ContinueChance) {	
+					for (int ii = plansize - 1; ii > i; ii--) {
+						Plan.RemoveFromPlan(ii);
 					}
-
-					moves[i].Damage.Add(damage);
-					moves[i].Healing.Add(healing);
-					moves[i].damageTotal += damage;
-					moves[i].healingTotal += healing;
 				}
 			}
 
-			// fourth sweep gives values to the moves
+			TempAccuracy = 0;
+			TempResponse = 0;
+		}
 
-			upper = moves.Count;
-			for (int i = 0; i < upper; i++) {
-				// moves[i].value
-				for (int ii = 0; ii < moves[i].Damage.Count; ii++) {
-					moves[i].value += moves[i].Damage[ii];
-					moves[i].value += moves[i].Healing[ii] * moves[i].HealMult[ii];
-					moves[i].value += ((moves[i].shields) * (Targets[moves[i].Targets[ii]].Unit.Health / 4));
+		private void GenPlan(SimNode point) {
+			if (point.Depth >= MaxPlay) { return; }
+			int possibleCount = Possible.Count;
+			List<SimNode> Choices = new List<SimNode>();
+
+			for (int i = 0; i < possibleCount; i++) {
+				if (!point.CheckUsed(Possible[i])) {
+					SimNode test = ChooseTarget(point.Current, Possible[i]);
+
+					PlanStep step = new PlanStep(test.Play.Plan, this, point.Current.Involved, test.Target);
+					if (step.TestPlan(null)) {
+						Choices.Add(test);
+					}
 				}
-				
-				moves[i].value *= (1 + (moves[i].Targets.Count / Targets.Count));
-				moves[i].value /= (Mana - moves[i].cost) + 1;
-			}	
+			}
 
-			// sort the moves by value
+			// add side, fusion and multicasting plans here
+			if (Choices.Count == 0) { return; }
+			Sort.BubbleSort(Choices, Compare.SimNode);
 
-			Sort.QuickSort(moves, 0, moves.Count - 1, Compare.Move);
+			// pull from the fringe
+			int pull = 0;
+			while (Choices.Count > 0 && pull < FringeSize) {
+				if (Choices[0].Value <= 0) { break; }
+				if (point.CanAddDesc(Choices[0])) {
+					point.AddDescendant(Choices[0]);
+					pull++;
+				}
 
-			// remove top moves until the amount left is equal to one or the list contains accuracy % of original moves
+				Choices.RemoveAt(0);
+			}
+
+			for (int i = 0; i < point.Desc.Count; i++) {
+				GenPlan(point.Desc[i]);
+			}
+		}
+
+		private SimNode ChooseTarget(FieldSim sim, SimWrapper plan) {
+			if (!plan.Plan.Targeting) { return new SimNode(sim, plan); }
+			List<CharSim> Targs;
+
+			if (plan.Plan.TargetType == 0) { // Anyone
+				Targs = sim.Total;
+			} else if (plan.Plan.TargetType == 1) { // Friendlies
+				Targs = sim.Friends;
+			} else { // Enemies
+				Targs = sim.Enemies;
+			}
+
+			List<SimNode> Nodes = new List<SimNode>();
+			int targetCount = Targs.Count;
+
+			for (int i = 0; i < targetCount; i++) {
+				if (Targs[i].Health > 0) {
+					Nodes.Add(new SimNode(sim, plan, Targs[i].Index));
+				}
+			}
+
+			if (Nodes.Count <= 0) { return new SimNode(sim, plan); }
+			Sort.BubbleSort(Nodes, Compare.SimNode);
 			
-			int origsize = moves.Count;
-			double acc = moves.Count / (double) origsize;
-			while (acc * 100 > Accuracy + TempAccuracy && moves.Count > 1) {
-				moves.RemoveAt(0);
-				acc = moves.Count / (double) origsize;
-			}
-
-			// plan one of the top moves
-
-			if (moves.Count > 0) {
-				Move chosen = moves[0];
-				TempAccuracy = 0;
-			
-			
-				/*TextUI.PrintFormatted(Deck);
-				TextUI.PrintFormatted(Hand);*/
-
-				// make sure that the plan does something
-				if (chosen.damageTotal != 0 || chosen.healingTotal != 0 || chosen.shields != 0) {
-					// sort the cards in the plan, so that when they are removed the other indexes don't get messed up
-					bool sorted = false;
-					while (!sorted) {
-						sorted = true;
-						for (int i = 0; i < chosen.Cards.Count - 1; i++) {
-							if (chosen.Cards[i] < chosen.Cards[i + 1]) {
-								Sort.Swap(chosen.Cards, i, i + 1);
-								Sort.Swap(chosen.Targets, i, i + 1);
-							}
-						}
-					}
-
-					for (int i = 0; i < chosen.Cards.Count; i++) {
-						// new int[] { chosen.Cards[i] + 1, chosen.Targets[i] }
-						Plan.PlanOrCast(null, Hand[chosen.Cards[i]], Targets, chosen.Targets[i]);
-					}
-				}
-			}
+			return Nodes[0];
 		}
 	}
 
-	public class Move {
-		public List<int> Cards = new List<int>();
-		public List<int> Targets = new List<int>();
-		public List<int> TargetEffects = new List<int>();
-		public List<int> Damage = new List<int>();
-		public List<int> Healing = new List<int>();
-		public List<int> HealMult = new List<int>();
-		public int value = 0, cost = 0, shields = 0, damageTotal = 0, healingTotal = 0;
+	public class SimNode {
+		public List<SimNode> Desc = new List<SimNode>();
+		public int Value = 0, Target = -1;
+		public FieldSim Current;
+		public SimWrapper Play;
+		public bool Valid = true;
+		public int Depth = 0;
+
+		public List<int> Needed = new List<int>();
+
+		private SimNode Link = null;
+
+		public SimNode(SimNode parent, SimWrapper play, int target = -1) {
+			Target = target;
+			Play = play;
+			Link = parent;
+
+			Needed.AddRange(parent.Needed);
+			if (play != null) { Needed.AddRange(play.Need); }
+
+			Current = new FieldSim(Link.Current);
+			if (Play == null) { return; }
+			ValuePlay(Current.SimCard(Play.Plan, target));
+
+			Depth = Link.Depth + 1;
+		}
+
+		public SimNode(FieldSim state, SimWrapper play, int target = -1) {
+			Target = target;
+			Play = play;
+			Current = new FieldSim(state);
+
+			if (play != null) {
+				foreach (int i in play.Need) {
+					Needed.Add(i);
+				}
+			}
+
+			if (Play == null) { return; }
+			ValuePlay(Current.SimCard(Play.Plan, target));
+		}
+
+		public void AddDescendant(SimWrapper play, int target = -1) {
+			AddDescendant(new SimNode(this, play, target));
+		}
+
+		public void AddDescendant(SimNode node) {
+			node.Link = this;
+			node.Depth = Depth + 1;
+			node.Needed.AddRange(Needed);
+			Desc.Add(node);
+		}
+
+		public bool CanAddDesc(SimNode node) {
+			node.Validate();
+			return node.Valid;
+		}
+
+		public void Validate() {
+			Valid = Current.Mana >= 0 && Current.Fusion >= 0 && Current.Side >= 0 && Current.Multi >= 0;
+		}
+
+		private void ValuePlay(SimReport report) {
+			if (report == null) { return; }
+			if (Target != -1 && Current.Total[Target].Health <= 0) { return; }
+
+			bool Flip = false; // false means that damage is good
+			if (Target != -1 && Current.Friends[0].Side == Current.Total[Target].Side) { Flip = true; }
+
+			Value = 0;
+			// negative effects
+			Value += report.Damage * (Flip ? -1 : 1);
+			Value += report.Defeated * 200 * (Flip ? -1 : 1);
+
+			// positive effects
+			double healMult = (Target != -1 ? 0.40 + (Current.Total[Target].Health / (double)Current.Total[Target].MaxHealth) : 1);
+			Value += (int) (report.Healing * healMult) * (Flip ? 1 : -1);
+
+			double shieldMult = (Target != -1) ? Math.Min(Current.Total[Target].MaxHealth - Current.Total[Target].Health, 60) : 30;
+			Value += (int) (report.SGained * shieldMult) * (Flip ? 1 : -1);
+
+			Value += report.Drawn * 50 * (Target == -1 || !Flip ? 1 : -1);
+
+			// Neutral Effects
+			Value += report.Summons * 100;
+			Value = (int) (Value * Math.Max(report.TargetsAffected, 1));
+
+			if (Value == 0) {	
+				return;
+			}
+		}
+
+		// checks if the play has been used in this branch already
+		public bool CheckUsed(SimWrapper check) {
+			bool ret = false;
+
+			for (int i = 0; i < Needed.Count; i++) {
+				if (check.Need.Contains(Needed[i])) {
+					ret = true;
+					break;
+				}
+			}
+
+			return ret;
+		}
+
+		public void GenPlan(Character Caster) {
+			if (Link != null) { Link.GenPlan(Caster); }
+			if (Play != null) { Caster.Plan.PlanOrCast(null, Play.Plan, Current.Involved, Target); }
+		}
 	}
 
-	public class PossibleTarg {
-		public int Damage, Target, Value;
+	public class FieldSim {
+		public List<BattleChar> Involved;
+		public List<CharSim> Friends = new List<CharSim>();
+		public List<CharSim> Enemies = new List<CharSim>();
+		public List<CharSim> Total = new List<CharSim>();
 
-		public PossibleTarg (int damage, int target, int value = 0) {
+		private int TotalCount, FriendCount, EnemyCount;
+
+		public int Mana = 0, Fusion = 0, Side = 0, Multi = 0;
+
+		public FieldSim (List<BattleChar> involved, int FriendlySide) {
+			Involved = involved;
+			int invAmt = Involved.Count;
+			for (int i = 0; i < invAmt; i++) {
+				Character point = Involved[i].Unit;
+				CharSim sim = new CharSim(i, point.Health, point.MaxHealth, Involved[i].Effect, Involved[i].Side, Involved[i].Shields.Count);
+				
+				if (Involved[i].Side == FriendlySide) {
+					Friends.Add(sim);
+				} else {
+					Enemies.Add(sim);
+				}
+
+				Total.Add(sim);
+			}
+
+			TotalCount = Total.Count;
+			FriendCount = Friends.Count;
+			EnemyCount = Enemies.Count;
+		}
+
+		public FieldSim (FieldSim copy) {
+			int friendSide = copy.Friends[0].Side;
+			for (int i = 0; i < copy.TotalCount; i++) {
+				CharSim sim = new CharSim(copy.Total[i]);
+
+				if (copy.Total[i].Side == friendSide) {
+					Friends.Add(sim);
+				} else {
+					Enemies.Add(sim);
+				}
+
+				Total.Add(sim);
+			}
+
+			Involved = copy.Involved;
+
+			TotalCount = Total.Count;
+			FriendCount = Friends.Count;
+			EnemyCount = Enemies.Count;
+
+			Mana = copy.Mana;
+			Fusion = copy.Fusion;
+			Side = copy.Side;
+			Multi = copy.Multi;
+		}
+
+		public SimReport SimCard (Plannable plan, int target, bool Change = true) {
+			if (plan == null) { return null; }
+			SimReport report = new SimReport();
+
+			Card card = plan.CardEquiv();
+
+			if (Change) {
+				Mana -= plan.ManaCost;
+				Fusion -= plan.FusionCost;
+				Side -= plan.SideCost;
+				Multi -= plan.MultiSlots;
+			}
+
+			// summons are not interactable the turn that they are summoned, so there is no reason to add them to the sim
+			if (card.Mod == Mods.Translate("summon")) {
+				List<CardAI> lis = SummonTable.CreateSummon(card);
+				report.Summons += lis.Count;
+			}
+
+			report.Drawn   += (card.Sub == SubMods.Translate("plusone")) ? 1 : 0;
+			report.Drawn   += (card.Type == Types.Translate("time")) ? card.Tier : 0;
+			report.SGained += (card.Type == Types.Translate("shield")) ? Math.Max(card.Tier, 1) : 0;
+
+			if (target == -1) { return report; }
+
+			int cardEffect = card.Element.GetEffect();
+
+			report.Damage  = CalcAmount(Total[target], card.Damage, cardEffect);
+			report.Defeated += report.Damage >= Total[target].Health && Total[target].Health != 0 ? 1 : 0;
+			report.Healing = CalcAmount(Total[target], card.Healing, cardEffect, false);
+
+			if (Change) { Total[target].HealthChange += report.Healing - report.Damage; Total[target].Effect = cardEffect; }
+
+			report.TargetsAffected = 1;
+
+			if (card.Mod == Mods.Translate("aoe")) {
+				int targeting = Total[target].Side;
+				for (int i = 0; i < TotalCount; i++) {
+					if (Total[i].Side == targeting && i != target) {
+						int tem = CalcAmount(Total[i], card.Damage, cardEffect) / 2;
+						int temh = CalcAmount(Total[i], card.Healing, cardEffect, false) / 2;
+
+						report.Damage   += tem;
+						report.Defeated += tem >= Total[i].Health ? 1 : 0;
+
+						report.Healing += temh;
+
+						if (Change) { Total[i].Health += temh - tem; Total[i].Effect = cardEffect; }
+						report.TargetsAffected++;
+					}
+				}
+			} else if (card.Sub == SubMods.Translate("jumping")) {
+				// I dont bother going through the reactions and checking overhealing / overkilling because the target is random
+				// I also do not change the values of any target as the AI does not know which one it will hit
+				// These values are entirely for hueristic purposes
+				int amt = (card.Damage / 2);
+				int targeting = Total[target].Side;
+
+				for (int i = 0; i < TotalCount; i++) {
+					if (Total[i].Side == targeting && i != target) {
+						if (amt >= Total[i].Health) {
+							report.Defeated++; // I assume that if it can jump to someone it can defeat it will
+							break;
+						}
+					}
+				}
+				
+				report.Damage += amt;
+				report.Healing += (card.Healing / 2);
+				report.TargetsAffected++;
+			}
+
+			return report;
+		}
+
+		private int CalcAmount (CharSim sim, int amt, int effect, bool damage = true) {
+			int start = (int) (amt * Reactions.GetReaction(sim.Effect, effect).Mult);
+
+			// we have to account for overhealing / overkilling
+			if (damage) {
+				start = Math.Min(start, sim.Health);
+			} else { // healing
+				start = Math.Min(start, sim.MaxHealth - sim.Health);
+			}
+
+			return start;
+		}
+	}
+
+	public class CharSim {
+		public int Index, Health, MaxHealth, Effect, Side, Shields, HealthChange = 0;
+
+		public CharSim (int index, int health, int maxhp, int eff, int side, int shields, int healthchange = 0) {
+			Index = index;
+			Health = health;
+
+			HealthChange = healthchange;
+			Health += HealthChange;
+			HealthChange = 0;
+
+			MaxHealth = maxhp;
+			Effect = eff;
+			Side = side;
+			Shields = shields;
+		}
+
+		public CharSim (CharSim copy) : this (copy.Index, copy.Health, copy.MaxHealth, copy.Effect, copy.Side, copy.Shields, copy.HealthChange) {  }
+	}
+
+	public class SimReport {
+		public int Damage, Healing, Defeated = 0, TargetsAffected = 0, Summons = 0, Drawn = 0, SGained = 0;
+
+		public SimReport (int damage = 0, int healing = 0) {
 			Damage = damage;
-			Target = target;
-			Value = value;
+			Healing = healing;
+		}
+	}
+
+	public class SimWrapper {
+		public Plannable Plan;
+		public int[] Need;
+
+		public SimWrapper(Plannable plan, int[] needed) {
+			Plan = plan;
+			Need = needed;
+		}
+
+		public SimWrapper(Plannable plan, int need) {
+			Plan = plan;
+			Need = new int[] { need };
 		}
 	}
 }

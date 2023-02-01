@@ -24,7 +24,10 @@ namespace Card_Test.Map {
         public bool Explored = false, PlayerHere = false, Traversed = false;
         public bool Locked = false;
 
-        public Room(bool[] connects) {
+        public Floor Link = null;
+
+        public Room(bool[] connects = null) {
+            if (connects == null) { connects = new bool[4]; }
             Connections = connects;
         }
 
@@ -125,12 +128,12 @@ namespace Card_Test.Map {
         public static Room Generate (TRoom template) {
             Room ret = null;
             switch (template.Type) {
-                case 0: ret = new Room(new bool[4]); break;
-                case 3: ret = new Campfire(new Room(new bool[4])); break;
-                case 4: ret = new ShopRoom(new Room(new bool[4]), template.Data[0], template.SubData); break;
-                case 5: ret = new Inn(new Room(new bool[4]), template.Data[0]); break;
-                case 6: ret = new Cauldron(new Room(new bool[4])); break;
-                case 7: ret = new Altar(new Room(new bool[4])); break;
+                case 0: ret = new Room(); break;
+                case 3: ret = new Campfire(new Room()); break;
+                case 4: ret = new ShopRoom(new Room(), template.Data[0], template.SubData); break;
+                case 5: ret = new Inn(new Room(), template.Data[0]); break;
+                case 6: ret = new Cauldron(new Room()); break;
+                case 7: ret = new Altar(new Room()); break;
             }
             return ret;
         }

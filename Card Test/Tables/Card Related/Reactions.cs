@@ -21,7 +21,7 @@ namespace Card_Test.Tables {
             new Reaction("Clean", 3, 4, 0.8),
             new Reaction("Rehydrate", 6, 2, 0.8),
             new Reaction("Blind", new int[] { 7, 8 }, new int[] { 8, 7 }, 2)
-        };
+		};
 		
 		public static Reaction GetReaction (int A, int B) {
 			foreach (Reaction react in Table) {

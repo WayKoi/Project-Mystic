@@ -7,14 +7,6 @@ using System.Text;
 namespace Card_Test.Tables {
 	public static class Decks {
 
-		/*public static TDeck Template = new TDeck(def,
-			new TCard[] {
-
-			}, handsize
-		);*/
-
-
-
 		public static Deck FillDeck (TDeck template) {
 			if (template == null) { return null; }
 
@@ -96,6 +88,8 @@ namespace Card_Test.Tables {
 
 		public int DeckLim = -1, TrunkLim = -1;
 
+		private bool ValidateOnExit = false;
+
 		private Deck () {
 			EditDeckMenu = new MenuItem[] {
 				new MenuItem(new string[] { "Leave", "L" }, StopEditing, TextUI.Parse, "stop editing the deck"),
@@ -157,8 +151,8 @@ namespace Card_Test.Tables {
 		}
 
 		public void ValidateDeck () {
-			if (DeckLim != -1 && Content.Count > DeckLim) { EditDeck(); }
-			if (TrunkLim != -1 && Trunk.Count > TrunkLim) { EditDeck(); }
+			if (DeckLim != -1 && Content.Count > DeckLim) { EditDeck(true); }
+			if (TrunkLim != -1 && Trunk.Count > TrunkLim) { EditDeck(true); }
 		}
 
 		public void AddCard (Card card, bool sort = true) {
@@ -257,8 +251,10 @@ namespace Card_Test.Tables {
 			TextUI.PrintFormatted(TrunkToString() + "\n");
 		}
 
-		public bool EditDeck () {
+		public bool EditDeck (bool valid = false) {
+			ValidateOnExit = valid;
 			Editing = true;
+
 			while (Editing) {
 				PrintDeckEdit();
 				TextUI.Prompt("What would you like to do?", EditDeckMenu);
@@ -272,15 +268,11 @@ namespace Card_Test.Tables {
 			if (data[0] <= 0 || data[0] > Content.Count) { return false; }
 			data[0]--;
 
-			TextUI.PrintFormatted("Removed\n" + Content[data[0]] + "\nFrom the deck");
-
 			Trunk.Add(Content[data[0]]);
 			Content.RemoveAt(data[0]);
 
 			Sort.BubbleSort(Content, Compare.Card);
 			Sort.BubbleSort(Trunk, Compare.Card);
-
-			TextUI.Wait();
 
 			return true;
 		}
@@ -304,16 +296,11 @@ namespace Card_Test.Tables {
 			if (data[0] <= 0 || data[0] > Trunk.Count) { return false; }
 			data[0]--;
 
-			TextUI.PrintFormatted("Added\n" + Trunk[data[0]] + "\nTo the deck");
-
 			Content.Add(Trunk[data[0]]);
 			Trunk.RemoveAt(data[0]);
 
 			Sort.BubbleSort(Content, Compare.Card);
 			Sort.BubbleSort(Trunk, Compare.Card);
-
-			TextUI.PrintFormatted("Press enter to continue");
-			Console.ReadLine();
 
 			return true;
 		}
@@ -326,12 +313,11 @@ namespace Card_Test.Tables {
 			return Content.Count;
 		}
 
-		public bool StopEditing (int[] data) {
+		public bool Validate() {
 			if ((DeckLim == -1 || Content.Count <= DeckLim) && (TrunkLim == -1 || Trunk.Count <= TrunkLim)) {
-				Editing = false;
 				return true;
 			}
-			
+
 			if (TrunkLim != -1 && Trunk.Count > TrunkLim) {
 				TextUI.PrintFormatted("Trunk is overfilled!");
 			}
@@ -341,6 +327,16 @@ namespace Card_Test.Tables {
 			}
 
 			return false;
+		}
+
+		public bool StopEditing (int[] data) {
+			if (ValidateOnExit) {
+				Editing = !Validate();
+				return !Editing;
+			}
+
+			Editing = false;
+			return true;
 		}
 
 		public void PrintDeckEdit () {

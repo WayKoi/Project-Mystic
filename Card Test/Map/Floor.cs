@@ -16,9 +16,18 @@ namespace Card_Test.Map {
 
         private Boss BossBattle;
 
+        public string Name;
+
+        public Floor Down { private set; get; }
+        public Floor Up { private set; get; }
+
+        public Dungeon Link = null;
+
         public Floor (FloorGen gen, bool print = false) {
             Gen = gen;
             
+            Name = Gen.Name;
+
             Width = gen.Width;
             Height = gen.Height;
             Magnetic = gen.Magnetic;
@@ -30,9 +39,9 @@ namespace Card_Test.Map {
             int startx = Global.Rand.Next((int) Math.Round(Width / 4.0), (int) Math.Round(Width * 3.0 / 4.0));
             int starty = Global.Rand.Next((int) Math.Round(Height / 4.0), (int) Math.Round(Height * 3.0 / 4.0));
 
-            Room start = new StartRoom(new Room(new bool[4]));
+            Room start = new StartRoom(new Room());
             start.Pos[0] = startx; start.Pos[1] = starty;
-            start.SetActivateAction(gen.StartRoom);
+            start.SetActivateAction(MoveUp);
 
             Rooms[startx, starty] = start;
             
@@ -52,41 +61,48 @@ namespace Card_Test.Map {
             }
 
             // campfires + inns
-            for (int i = 0; i < gen.RoomAmt[0]; i++) {
+            for (int i = 0; i < gen.Rooms.Campfires; i++) {
                 TemStack.Add(GenRoom(3));
             }
 
-            for (int i = 0; i < gen.RoomAmt[1]; i++) {
+            for (int i = 0; i < gen.Rooms.Inns; i++) {
                 TemStack.Add(GenRoom(5));
             }
 
             // cauldrons and altars
-            for (int i = 0; i < gen.SpecialRooms[0]; i++) {
-                TemStack.Add(Global.Rand.Next(0, 2) == 0 ? GenRoom(6) : GenRoom(7));
-            }
-
-            for (int i = 0; i < gen.SpecialRooms[1]; i++) {
-                TemStack.Add(GenRoom(6));
-            }
-
-            for (int i = 0; i < gen.SpecialRooms[2]; i++) {
-                TemStack.Add(GenRoom(7));
+            if (gen.Rooms.Specials != null) {
+                for (int i = 0; i < gen.Rooms.Specials.Length; i++) {
+                    switch (gen.Rooms.Specials[i]) {
+                        case 0: TemStack.Add(Global.Rand.Next(0, 2) == 0 ? GenRoom(6) : GenRoom(7)); break;
+                        case 1: TemStack.Add(GenRoom(6)); break;
+                        case 2: TemStack.Add(GenRoom(7)); break;
+                    }
+                }
             }
 
             // battles
-            int battleamt = Global.Rand.Next(Gen.BattleData[0], Gen.BattleData[1] + 1);
+            int battleamt = Global.Rand.Next(Gen.Rooms.Battles[0], Gen.Rooms.Battles[1] + 1);
             for (int i = 0; i < battleamt; i++) {
                 TemStack.Add(GenRoom(-1));
             }
 
             // the shops
-            for (int i = 0; i < gen.ShopTypes.Length; i++) {
-                for (int ii = 0; ii < gen.ShopTypes[i]; ii++) {
-                    switch (i) {
+            if (gen.Rooms.Shops != null) {
+                for (int i = 0; i < gen.Rooms.Shops.Length; i++) {
+                    switch (gen.Rooms.Shops[i]) {
                         case 0: TemStack.Add(GenRoom(4)); break;
-                        case 1: TemStack.Add(new ShopRoom(new Room(new bool[4]), gen.ShopTier, new int[] { 1 })); break;
-                        case 2: TemStack.Add(new ShopRoom(new Room(new bool[4]), gen.ShopTier, new int[] { 0, 1 })); break;
-                        case 3: TemStack.Add(new ShopRoom(new Room(new bool[4]), gen.ShopTier, new int[] { 0, 0, 1 })); break;
+                        case 1: TemStack.Add(new ShopRoom(new Room(), gen.ShopTier, new int[] { 1 })); break;
+                        case 2: TemStack.Add(new ShopRoom(new Room(), gen.ShopTier, new int[] { 0, 1 })); break;
+                        case 3: TemStack.Add(new ShopRoom(new Room(), gen.ShopTier, new int[] { 0, 0, 1 })); break;
+                    }
+                }
+            }
+
+            // The rare rooms
+            if (gen.Rooms.Rares != null) {
+                for (int i = 0; i < gen.Rooms.Rares.Length; i++) {
+                    if (gen.Rooms.Rares[i].Roll(gen.Rooms.Rares[i].Max)) { 
+                        TemStack.Add(TRoom.Generate(gen.Rooms.Rares[i].Room));
                     }
                 }
             }
@@ -115,7 +131,7 @@ namespace Card_Test.Map {
 
             // insert the boss room
             Room broom = GenRoom(2);
-            broom.SetActivateAction(gen.EndRoom);
+            broom.SetActivateAction(MoveDown);
             Stack.Insert(gen.BossLen - 1, broom);
 
             List<Room> Pop = new List<Room>();
@@ -157,6 +173,26 @@ namespace Card_Test.Map {
             }
         }
         
+        public void ChangeDownLink (Floor floor) {
+            Down = floor;
+        }
+
+        public void ChangeUpLink(Floor floor) {
+            Up = floor;
+        }
+
+        public void MoveDown (int dum, int dumm) {
+            ChangeFloor(Down);
+        }
+
+        public void MoveUp (int dum, int dumm) {
+            ChangeFloor(Up);
+        }
+
+        public void ChangeFloor (Floor to) {
+            Link.ChangeFloor(to);
+        }
+
         private List<RoomChance> GetBranchChances (List<Room> Pop, bool print = false) {
             List<RoomChance> rooms = new List<RoomChance>();
             int[,] spots = new int[Width, Height];
@@ -312,19 +348,23 @@ namespace Card_Test.Map {
         }
 
         public Room GenRoom (int type) {
+            Room room = null;
+
             switch (type) {
-                case -1: return new BattleRoom(new Room(new bool[4]), Gen.Battles);
-                case 0: return new Room(new bool[4]);
-                case 1: return new StartRoom(new Room(new bool[4]));
-                case 2: return new BossRoom(new Room(new bool[4]), RunBossBattle);
-                case 3: return new Campfire(new Room(new bool[4]));
-                case 4: return new ShopRoom(new Room(new bool[4]), Gen.ShopTier, Gen.ShopWeights);
-                case 5: return new Inn(new Room(new bool[4]), Gen.InnCost);
-                case 6: return new Cauldron(new Room(new bool[4]));
-                case 7: return new Altar(new Room(new bool[4]));
+                case -1: room = new BattleRoom(new Room(), Gen.Battles); break;
+                case 0: room = new Room(); break;
+                case 1: room = new StartRoom(new Room()); break;
+                case 2: room = new BossRoom(new Room(), RunBossBattle); break;
+                case 3: room = new Campfire(new Room()); break;
+                case 4: room = new ShopRoom(new Room(), Gen.ShopTier, Gen.Rooms.ShopWeights); break;
+                case 5: room = new Inn(new Room(), Gen.InnCost); break;
+                case 6: room = new Cauldron(new Room()); break;
+                case 7: room = new Altar(new Room()); break;
             }
 
-            return null;
+            if (room != null) { room.Link = this; }
+
+            return room;
         }
 
         public void RevealFloor () {
@@ -416,50 +456,6 @@ namespace Card_Test.Map {
                 Point = point;
                 Chance = chance;
             }
-        }
-    }
-
-    public class FloorGen {
-        public int Width, Height, BossLen, BranchLen, BranchAmt, BranchChance, Magnetic, ShopTier, InnCost, BaseWeight;
-        // roomamt = Campfires, inns
-        // specialroooms = { random, cauldrons, altars }
-        public int[] RoomAmt, ShopTypes, ShopWeights, SpecialRooms;
-        // shop types = # random, # card, # pack, # gear
-
-        public Boss Boss;
-        public TRoom[] Prepend;
-        public GameEvent[] Battles;
-        // BattleData = # min, # max
-        public int[] BattleData;
-
-        public Action<int, int> StartRoom, EndRoom;
-
-        public FloorGen(int[] Gen, int[] RoomVals, int[] Chances, int[] roomamt, int[] shopTypes, int[] shopweights, int[] specialrooms, int[] battleData, Boss boss = null, GameEvent[] battles = null, Action<int, int> startRoom = null, Action<int, int> endRoom = null, TRoom[] prepend = null) {
-            Width = Gen[0];
-            Height = Gen[1];
-            BossLen = Gen[2];
-            BranchLen = Gen[3];
-            BranchAmt = Gen[4];
-
-            ShopTier = RoomVals[0];
-            InnCost = RoomVals[1];
-
-            Magnetic = Chances[0];
-            BaseWeight = Chances.Length > 1 ? Chances[1] : 10;
-
-            RoomAmt = roomamt;
-            ShopTypes = shopTypes;
-            SpecialRooms = specialrooms;
-            ShopWeights = shopweights;
-            BattleData = battleData;
-
-            Boss = boss;
-            Battles = battles;
-
-            Prepend = prepend;
-
-            StartRoom = startRoom;
-            EndRoom = endRoom;
         }
     }
 }
