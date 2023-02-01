@@ -45,6 +45,15 @@ namespace Card_Test.Tables {
 			return generated;
 		}
 
+		public static bool HandReq(PlayReport report, Stone stone) {
+			if (stone.Owner.Hand.Count <= 0) {
+				if (report != null) { report.Additional.Add("Not enough cards in the hand to activate this effect"); }
+				return false;
+			}
+
+			return true;
+		}
+
 		public static void RestrictApplyEffects(Stone used, int[] dum) {
 			// for restricting applying effects to the field
 			DuneGem[1].Chance = 0;
@@ -114,24 +123,28 @@ namespace Card_Test.Tables {
 			TextUI.Wait();*/
 		}
 
+		// ------------------------------------------------------
+		//  DUNE
+		// ------------------------------------------------------
+
 		public static StoneEffect[] DuneGem = {
-			new StoneEffect(10, "Takes unused mana and restores 5% max HP to party at end of turn (Max 25%), restriction : all other unused mana effects", 
+			new StoneEffect(1, "Takes unused mana and restores 5% max HP to party at end of turn (Max 25%), restriction : all other unused mana effects", 
 				true, false, false, true, -1, -1, null, DuneA, null, RestrictUnusedManaEffects
 			),
-			new StoneEffect(10, "Applies dry to all enemies before casting starts, restriction : all other similar stone effects",
+			new StoneEffect(1, "Applies dry to all enemies before casting starts, restriction : all other similar stone effects",
 				true, false, false, false, -1, -1, new int[] { 6 }, EffectField, null, RestrictApplyEffects
 			),
-			new StoneEffect(10, "Restores 5% max HP at end of turn to random friendly party member",
+			new StoneEffect(1, "Restores 5% max HP at end of turn to random friendly party member",
 				true, false, false, true, -1, -1, null, DuneB
 			),
 
-			new StoneEffect(10, "3 Mana, Heal specific target for 50% max HP, 1 per battle",
+			new StoneEffect(1, "3 Mana, Heal specific target for 50% max HP, 1 per battle",
 				false, true, false, false, 3, 1, null, DuneC
 			),
-			new StoneEffect(10, "2 Mana, Sink the enemies in sand for a turn making them unable to attack this turn, 1 per battle",
+			new StoneEffect(1, "2 Mana, Sink the enemies in sand for a turn making them unable to attack this turn, 1 per battle",
 				false, false, false, false, 2, 1, new int[] { 0, 1, 0 }, StatusField
 			),
-			new StoneEffect(10, "1 Mana, Create a sand card based on a card in your deck and draw it, Instant effect, 2 per battle",
+			new StoneEffect(1, "1 Mana, Create a sand card based on a card in your deck and draw it, Instant effect, 2 per battle",
 				false, false, true, false, 1, 2, new int[] { Types.Translate("sand") }, DrawGhost
 			)
 		};
@@ -176,24 +189,28 @@ namespace Card_Test.Tables {
 			// report.PrintReport();
 		}
 
+		// ------------------------------------------------------
+		//  IVORY
+		// ------------------------------------------------------
+
 		public static StoneEffect[] IvoryGem = {
-			new StoneEffect(10, "Applies Sprout to all enemies before casting starts, restriction : all other similar stone effects",
+			new StoneEffect(1, "Applies Sprout to all enemies before casting starts, restriction : all other similar stone effects",
 				true, false, false, false, -1, -1, new int[] { 9 }, EffectField, null, RestrictApplyEffects
 			),
-			new StoneEffect(10, "Takes unused mana and draws a card for every mana not used at the end of the turn (max 2), restriction : all other unused mana effects",
+			new StoneEffect(1, "Takes unused mana and draws a card for every mana not used at the end of the turn (max 2), restriction : all other unused mana effects",
 				true, false, false, true, -1, -1, null, IvoryA, null, RestrictUnusedManaEffects
 			),
-			new StoneEffect(10, "Player gains a 50% shield at the end of the turn",
+			new StoneEffect(1, "Player gains a 50% shield at the end of the turn",
 				true, false, false, true, -1, -1, null, IvoryB
 			),
 
-			new StoneEffect(10, "2 Mana, Draw 2, 1 per battle",
+			new StoneEffect(1, "2 Mana, Draw 3, 1 per battle",
 				false, false, true, false, 2, 1, null, IvoryD
 			),
-			new StoneEffect(10, "2 Mana, Root all opponents for a turn making them unable to attack, 1 per battle",
+			new StoneEffect(1, "2 Mana, Root all opponents for a turn making them unable to attack, 1 per battle",
 				false, false, false, false, 2, 1, new int[] { 4, 1, 0 }, StatusField
 			),
-			new StoneEffect(10, "4 Mana, Entire party gets 2 shields, 1 per battle",
+			new StoneEffect(1, "4 Mana, Entire party gets 2 shields, 1 per battle",
 				false, false, false, false, 4, 1, null, IvoryC
 			),
 		};
@@ -269,8 +286,84 @@ namespace Card_Test.Tables {
 				count++;
 			}
 
-			Types.Time(new Card(0, 2), targets, User, report);
+			Types.Time(new Card(0, 3), targets, User, report);
 		}
+
+		// ------------------------------------------------------
+		//  APOCALYPSE
+		// ------------------------------------------------------
+
+		public static StoneEffect[] ApocalypseGemStone = new StoneEffect[] {
+			new StoneEffect(1, "Consume remaining mana to deal AOE damage to all enemies, 1 per battle",
+				false, false, false, false, -1, 1, null, ApoA
+			),
+
+			new StoneEffect(1, "2 Mana, Ignite all enemies for 2 turns, 1 per battle",
+				false, false, false, false, 2, 1, null, ApoB
+			),
+
+			new StoneEffect(1, "2 Mana, deal damage to a single target and heal based on the damage it deals, 1 per battle",
+				false, true, false, false, 2, 1, null, ApoC
+			),
+
+			new StoneEffect(1, "0 Mana, Discard your hand and draw a new one, 2 per battle",
+				false, false, true, false, 0, 2, null, ApoD, null, null, HandReq
+			),
+		};
+
+		public static void ApoA(PlayReport report, Stone Used, int[] data, List<BattleChar> targets, int specific) {
+			report.Caster = Used.Owner;
+			report.Played = Used;
+
+			int[] damage = { 15, 25, 40, 50, 60, 80, 100, 120, 140, 200 };
+
+			BattleChar battCaster = BattleUtil.FindCharacter(targets, Used.Owner);
+
+			for (int i = 0; i < targets.Count; i++) {
+				if (targets[i].Side != battCaster.Side) {
+					int cost = Math.Min(Used.ManaCost, damage.Length) - 1;
+					int dam = damage[cost] + Global.Rand.Next(-5, 6);
+					targets[i].TakeDamage(Used.Owner, dam, Types.Translate("fire"), report, true);
+				}
+			}
+		}
+
+		public static void ApoB(PlayReport report, Stone Used, int[] data, List<BattleChar> targets, int specific) {
+			report.Caster = Used.Owner;
+			report.Played = Used;
+
+			BattleChar battCaster = BattleUtil.FindCharacter(targets, Used.Owner);
+
+			for (int i = 0; i < targets.Count; i++) {
+				if (targets[i].Side != battCaster.Side) {
+					Status stat = new Status(new Card(Types.Translate("fire"), 2), StatusTable.Table[2], targets[i], 2, 2, 0.5, report);
+				}
+			}
+		}
+
+		public static void ApoC(PlayReport report, Stone Used, int[] data, List<BattleChar> targets, int specific) {
+			report.Caster = Used.Owner;
+			report.Played = Used;
+
+			int damage = Global.Rand.Next(40, 51);
+			int amt = targets[specific].TakeDamage(Used.Owner, damage, Types.Translate("fire"), report, true);
+			
+			BattleChar battCaster = BattleUtil.FindCharacter(targets, Used.Owner);
+			battCaster.Heal((int) (amt / 3.0), Types.Translate("fire"), report);
+		}
+
+		public static void ApoD(PlayReport report, Stone Used, int[] data, List<BattleChar> targets, int specific) {
+			report.Caster = Used.Owner;
+			report.Played = Used;
+
+			int handsize = Used.Owner.Hand.Count;
+			report.Additional.Add(Used.Owner.Name + " Discards " + handsize + " cards");
+			Used.Owner.Hand.Clear();
+
+			report.Additional.Add(Used.Owner.Name + " draws " + handsize + " card" + (handsize > 1 ? "s" : ""));
+			Used.Owner.DrawCard(handsize);
+		}
+
 	}
 
 	public class StoneEffect {
@@ -282,8 +375,9 @@ namespace Card_Test.Tables {
 		//             used     data     targets    specific
 		public Action<PlayReport, Stone, int[], List<BattleChar>, int> Effect;
 		public Action<Stone, int[]> Chosen;
+		public Func<PlayReport, Stone, bool> AdditionalPlan = null;
 
-		public StoneEffect (int chance, string desc, bool ispassive, bool targeting, bool instant, bool endofturn, int cost, int maxperbattle, int[] data, Action<PlayReport, Stone, int[], List<BattleChar>, int> effect, int[] chosenData = null, Action<Stone, int[]> chosen = null) {
+		public StoneEffect (int chance, string desc, bool ispassive, bool targeting, bool instant, bool endofturn, int cost, int maxperbattle, int[] data, Action<PlayReport, Stone, int[], List<BattleChar>, int> effect, int[] chosenData = null, Action<Stone, int[]> chosen = null, Func<PlayReport, Stone, bool> additional = null) {
 			Description = desc;
 			IsPassive = ispassive;
 			RequiresTarget = targeting;
@@ -300,6 +394,8 @@ namespace Card_Test.Tables {
 			
 			ChosenData = chosenData;
 			Chosen = chosen;
+
+			AdditionalPlan = additional;
 		}
 
 		public void Refresh () {
@@ -346,6 +442,10 @@ namespace Card_Test.Tables {
 			if (Effect.UsesLeft <= 0) {
 				if (report != null) { report.Additional.Add("This effect cannot be used again this battle"); }
 				return false;
+			}
+
+			if (Effect.AdditionalPlan != null) {
+				return Effect.AdditionalPlan(report, this);
 			}
 
 			return true;

@@ -73,6 +73,9 @@ namespace Card_Test.Tables {
 
 			Boss(/*"Demon"*/);
 
+			Console.Clear();
+			StoneTable.RollStone("Apocalypse Gem Stone", "AG", StoneTable.ApocalypseGemStone);
+
 			/*Console.Clear();
 			StoneTable.RollStone("Ivory Gem", "IG", StoneTable.IvoryGem);*/
 		}

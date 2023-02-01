@@ -17,6 +17,7 @@ namespace Card_Test {
 		public int MaxPlay;
 
 		public int FringeSize = 6;
+		public int ContinueChance = 70; // the chance that the plan gets cut short
 
 		private List<SimWrapper> Possible; 
 
@@ -100,6 +101,16 @@ namespace Card_Test {
 			}
 
 			travel.GenPlan(this);
+			int plansize = Plan.PlanSize();
+
+			for (int i = 0; i < plansize; i++) {
+				int check = Global.Rand.Next(0, 100);
+				if (check >= ContinueChance) {	
+					for (int ii = plansize - 1; ii > i; ii--) {
+						Plan.RemoveFromPlan(ii);
+					}
+				}
+			}
 
 			TempAccuracy = 0;
 			TempResponse = 0;

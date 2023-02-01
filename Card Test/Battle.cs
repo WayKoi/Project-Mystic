@@ -125,7 +125,9 @@ namespace Card_Test {
 				StatusReport = new PlayReport();
 
 				for (int i = 0; i < Involved.Count; i++) {
-					Involved[i].RunStatusStart(StatusReport);
+					if (Involved[i].Unit.HasHealth()) {
+						Involved[i].RunStatusStart(StatusReport);
+					}
 				}
 
 				StatusReport.PrintReport();
@@ -263,7 +265,7 @@ namespace Card_Test {
 			bool check = Player.Plan.PlanOrCast(report, Global.Run.Player.Stones[data[0]], Involved, (data.Length > 1 ? data[1] : -1));
 			report.PrintReport();
 
-			if (check && plansize == Player.Plan.PlanSize()) {
+			if ((!check && plansize == Player.Plan.PlanSize()) || Global.Run.Player.Stones[data[0]].Instant) {
 				TextUI.Wait();
 			}
 

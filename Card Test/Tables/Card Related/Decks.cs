@@ -7,14 +7,6 @@ using System.Text;
 namespace Card_Test.Tables {
 	public static class Decks {
 
-		/*public static TDeck Template = new TDeck(def,
-			new TCard[] {
-
-			}, handsize
-		);*/
-
-
-
 		public static Deck FillDeck (TDeck template) {
 			if (template == null) { return null; }
 
@@ -276,15 +268,11 @@ namespace Card_Test.Tables {
 			if (data[0] <= 0 || data[0] > Content.Count) { return false; }
 			data[0]--;
 
-			// TextUI.PrintFormatted("Removed\n" + Content[data[0]] + "\nFrom the deck");
-
 			Trunk.Add(Content[data[0]]);
 			Content.RemoveAt(data[0]);
 
 			Sort.BubbleSort(Content, Compare.Card);
 			Sort.BubbleSort(Trunk, Compare.Card);
-
-			// TextUI.Wait();
 
 			return true;
 		}
@@ -308,16 +296,11 @@ namespace Card_Test.Tables {
 			if (data[0] <= 0 || data[0] > Trunk.Count) { return false; }
 			data[0]--;
 
-			TextUI.PrintFormatted("Added\n" + Trunk[data[0]] + "\nTo the deck");
-
 			Content.Add(Trunk[data[0]]);
 			Trunk.RemoveAt(data[0]);
 
 			Sort.BubbleSort(Content, Compare.Card);
 			Sort.BubbleSort(Trunk, Compare.Card);
-
-			TextUI.PrintFormatted("Press enter to continue");
-			Console.ReadLine();
 
 			return true;
 		}

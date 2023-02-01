@@ -130,8 +130,7 @@ Apocalypse Gemstone
 	2 mana, set all enemies on fire for 2 turns, 1 per battle
 	3 mana, deal damage to single target and vamp from it, 1 per battle
 	0 mana, discard your hand and draw a new one, 2 per battle
-	?? 2 mana, afflict opponents with catalyze, 1 per battle // maybe move to eclipse
-	4 mana, assassinate a target under 70 health
+	
 
 Eclipse Stone
 	2 mana, cast Light 1 four times with random targets
@@ -139,4 +138,4 @@ Eclipse Stone
 	1 mana, draw a ghost light card based on one in your deck
 	1 mana, draw a ghost dark card based on one in your deck
 	4 mana, cast your whole hand with random targets, 1 per battle
-	catalyze?
+	2 mana, afflict opponents with catalyze, 1 per battle
