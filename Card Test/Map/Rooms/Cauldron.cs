@@ -23,6 +23,8 @@ namespace Card_Test.Map.Rooms {
 		private int Used = 0;
 		private int[] ReBrew = { 25, 0 };
 
+		private int MaterialAmt = 0;
+
 		public Cauldron(Room replace) : base(replace) {
 			RoomType = 6;
 			Description = "This room has a large cauldron sitting in the center";
@@ -72,6 +74,9 @@ namespace Card_Test.Map.Rooms {
 				MaterialAdded = 0;
 				TextUI.PrintFormatted("²The colour of the cauldron shifts!⁰");
 				CauldronState--;
+
+				MaterialAmt += ShopValues.CardValue(Dissolved[Dissolved.Count - 1]);
+				MinChances = new double[] { 10, Math.Max(20 - MaterialAmt, 5), Math.Max(30 - MaterialAmt, 1), Math.Max(40 - MaterialAmt, 0) };
 
 				TextUI.Wait();
 			}
@@ -149,9 +154,9 @@ namespace Card_Test.Map.Rooms {
 				TotalAdded = 0;
 				Dissolved.Clear();
 				CauldronState = Global.Rand.Next(0, 2);
-			}
 
-			TextUI.Wait();
+				TextUI.Wait();
+			}
 
 			return true;
 		}

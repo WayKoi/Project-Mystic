@@ -65,7 +65,7 @@ Alt Floors (-- means not in yet)
 
 			Camel
 	T2
-		Overgrowth II --
+		Overgrowth II
 			Boar
 			Giant Spider
 			Mice
