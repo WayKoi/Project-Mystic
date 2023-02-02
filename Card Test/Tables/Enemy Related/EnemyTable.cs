@@ -10,7 +10,7 @@ namespace Card_Test.Tables {
 		public static AIEntry Rat = new AIEntry("Rat", 30, 3, "PhysB", DropTable.BasicA, 40, 95, 2);
 		public static AIEntry Spider = new AIEntry("Spider", 60, 2, "PhysA", DropTable.BasicA, 60, 50, 1);
 
-		public static AIEntry Beetle = new AIEntry("Beetle", 100, 2, "Beetle", DropTable.BossA, 90, 80, 2);
+		public static AIEntry Beetle = new AIEntry("Beetle", 90, 2, "Beetle", DropTable.BossA, 90, 80, 2);
 		public static AIEntry Grub = new AIEntry("Grub", 15, 1, "Grub", DropTable.BasicA, 70, 100, 1);
 
 		// Sandy Caverns and Oasis

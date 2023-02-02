@@ -69,7 +69,7 @@ Alt Floors (-- means not in yet)
 			Boar
 			Giant Spider
 			Mice
-			Plant Wizard
+			Sprout Wizard
 
 			Mammoth
 		Ivory Halls I
