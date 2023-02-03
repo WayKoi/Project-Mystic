@@ -58,7 +58,7 @@ namespace Card_Test.Map {
         }
 
         public string GetSymbol () {
-            return PlayerHere ? (Global.Run.Player != null ? Global.Run.Player.Token : "⁰Ω⁰") : Symbol;
+            return PlayerHere ? (Global.Run != null && Global.Run.Player != null ? Global.Run.Player.Token : "⁰Ω⁰") : Symbol;
         }
 
         public string GetRoomName() {

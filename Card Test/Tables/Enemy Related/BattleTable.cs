@@ -79,8 +79,6 @@ namespace Card_Test.Tables {
 			new BattlePool(1, 2, new BTableEntry[] {
 				new BTableEntry(EnemyTable.Zombie, 20, 1),
 				new BTableEntry(EnemyTable.Skeleton, 50),
-				new BTableEntry(EnemyTable.Banshee, 5, 1),
-				new BTableEntry(EnemyTable.Poltergeist, 5, 1),
 				new BTableEntry(EnemyTable.BloodBat, 20, 1)
 			}, 7),
 
@@ -92,6 +90,24 @@ namespace Card_Test.Tables {
 
 			new BattlePool(1, 1, new BTableEntry[] {
 				new BTableEntry(EnemyTable.Vampire, 1)
+			}, 1)
+		};
+
+		public static BattlePool[] IvoryHallsII = {
+			new BattlePool(1, 2, new BTableEntry[] {
+				new BTableEntry(EnemyTable.Banshee, 5, 1),
+				new BTableEntry(EnemyTable.Poltergeist, 5, 1),
+				new BTableEntry(EnemyTable.Spirit, 10, 1)
+			}, 7),
+
+			new BattlePool(2, 3, new BTableEntry[] {
+				new BTableEntry(EnemyTable.Banshee, 5, 1),
+				new BTableEntry(EnemyTable.Poltergeist, 5, 1),
+				new BTableEntry(EnemyTable.Spirit, 10, 1)
+			}, 2),
+
+			new BattlePool(1, 1, new BTableEntry[] {
+				new BTableEntry(EnemyTable.Phantom, 1)
 			}, 1)
 		};
 

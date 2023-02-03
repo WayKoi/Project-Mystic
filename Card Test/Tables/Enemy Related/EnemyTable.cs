@@ -51,10 +51,16 @@ namespace Card_Test.Tables {
 		public static AIEntry Zombie = new AIEntry("Zombie", 80, 4, "Zombie", DropTable.BasicD, 70, 50, 2);
 		public static AIEntry Skeleton = new AIEntry("Skeleton", 50, 3, "Skeleton", DropTable.BasicD, 80, 95);
 		public static AIEntry BloodBat = new AIEntry("Blood Bat", 45, 6, "BloodBat", DropTable.BasicD, 75, 50, 2);
-		public static AIEntry Banshee = new AIEntry("Banshee", 45, 6, "Banshee", DropTable.BasicD, 30, 90, 2);
-		public static AIEntry Poltergeist = new AIEntry("Poltergeist", 50, 3, "Poltergeist", DropTable.BasicD, 30, 90, 2);
-
+		
 		public static AIEntry Demon = new AIEntry("Demon", 300, 4, "Demon", DropTable.BossD, 80, 80, 2);
+
+		public static AIEntry Banshee = new AIEntry("Banshee", 80, 2, "Banshee", DropTable.BasicD, 60, 90, 2);
+		public static AIEntry Poltergeist = new AIEntry("Poltergeist", 100, 3, "Poltergeist", DropTable.BasicD, 60, 90, 2);
+		public static AIEntry Spirit = new AIEntry("spirit", 60, 2, "spirit", DropTable.BasicD, 40, 90, 2);
+		public static AIEntry Phantom = new AIEntry("Phantom", 150, 2, "phantom", DropTable.RareC, 80, 60, 2);
+
+		public static AIEntry Reaper = new AIEntry("Reaper", 200, 3, "reaper", DropTable.BossD, 80, 90, 3);
+
 
 		// floor 5
 		public static AIEntry Mimic = new AIEntry("Mimic", 200, 4, "Mimic", DropTable.RareD, 60, 80, 2);

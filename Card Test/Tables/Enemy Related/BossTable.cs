@@ -35,6 +35,10 @@ namespace Card_Test.Tables {
 			EnemyTable.Demon
 		});
 
+		public static Boss Reaper = new Boss(new AIEntry[] {
+			EnemyTable.Reaper
+		});
+
 		public static Boss Warlock = new Boss(new AIEntry[] {
 			EnemyTable.Warlock
 		});

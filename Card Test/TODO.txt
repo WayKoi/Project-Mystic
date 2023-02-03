@@ -86,15 +86,16 @@ Alt Floors (-- means not in yet)
 			Skeleton
 			BloodBat
 			Zombie
-				Poltergeist
-				Banshee
 			Vampire
 
 			Demon
 		Ivory Halls II --
-			Polter and Banshee ?
+			Polter
+			Banshee
+			Spirit
+			Phantom
 
-
+			Reaper
 			
 	T4
 		Crystal Hollow

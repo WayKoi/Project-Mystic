@@ -75,7 +75,7 @@ namespace Card_Test.Map {
 					item.Cost = (int)(item.Cost * Global.Rand.Next(AttitudeMults[Attitude, 0], AttitudeMults[Attitude, 1]) / 100.0);
 				}
 			} else if (Type == 2) {
-				if (Global.Run.Player != null) {
+				if (Global.Run != null && Global.Run.Player != null) {
 					for (int i = 0; i < Global.Run.Player.Gear.Count; i++) {
 						if (Global.Run.Player.Gear[i].MaxUpgrades == 0 || Global.Run.Player.Gear[i].Upgrades < Global.Run.Player.Gear[i].MaxUpgrades) {
 							ShopItem item = new ShopGear(i);

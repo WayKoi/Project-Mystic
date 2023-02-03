@@ -23,7 +23,7 @@ namespace Card_Test {
 			TextUI.PrintFormatted(test.ToString());
 			TextUI.Wait();*/
 
-			// while (true) { } // hang
+			// while (true) { TestFloor(FloorTable.IvoryHallsII); } // hang
 
 			MenuItem[] CharacterMenu = {
 				new MenuItem(new string[] { "View", "V" }, ViewDetails, TextUI.Parse, "view a characters details" ),
@@ -131,7 +131,7 @@ namespace Card_Test {
 			}
 		}
 
-		public static void TestFloor (FloorGen plan, int tier) {
+		public static void TestFloor (FloorGen plan) {
 			Console.Clear();
 
 			new Floor(plan, true);

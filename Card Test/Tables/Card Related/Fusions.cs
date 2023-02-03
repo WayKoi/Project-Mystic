@@ -152,7 +152,7 @@ namespace Card_Test.Tables {
 		};
 
 		public static ModFusion[] ModFusions = {
-			new ModFusion(Mods.Translate("jumping"), Mods.Translate("jumping"), SubMods.Translate("aoe")),
+			new ModFusion(Mods.Translate("jumping"), Mods.Translate("jumping"), Mods.Translate("aoe")),
 			new ModFusion(Mods.Translate("summon"), -1, Mods.Translate("summon"))
 		};
 

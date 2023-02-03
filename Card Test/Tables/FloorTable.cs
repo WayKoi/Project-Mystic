@@ -30,7 +30,7 @@ namespace Card_Test.Tables {
         );
 
         public static FloorGen IvoryHalls = new FloorGen("Ivory Halls I", 2,
-            7, 6, 6, 4, 3,
+            7, 6, 6, 3, 4,
             new RoomGen(1, 1, 2, 3, new int[] { 0, 0, 3 }, new int[] { 0 }, new int[] { 2, 3 }),
             BossTable.Mannequin,
             BattleTable.IvoryHalls,
@@ -49,7 +49,16 @@ namespace Card_Test.Tables {
             7, 7, 7, 4, 3,
             new RoomGen(1, 1, 4, 4, new int[] { 0, 0, 0 }, new int[] { 1, 2 }),
             BossTable.Demon,
-            BattleTable.Catacombs
+            BattleTable.Catacombs,
+            1, 10
+        );
+
+        public static FloorGen IvoryHallsII = new FloorGen("Ivory Halls II", 3,
+            7, 6, 6, 3, 5,
+            new RoomGen(1, 1, 4, 4, new int[] { 0, 0, 0 }, new int[] { 1, 2 }),
+            BossTable.Reaper,
+            BattleTable.IvoryHallsII,
+            50, 1
         );
 
         public static FloorGen CrystalHollow = new FloorGen("Crystal Hollow", 4,
@@ -95,7 +104,8 @@ namespace Card_Test.Tables {
 
         public static FloorPool TierThree = new FloorPool(
             new FPoolEntry[] {
-                new FPoolEntry(Catacombs, 1)
+                new FPoolEntry(Catacombs, 1),
+                new FPoolEntry(IvoryHallsII, 1)
             }
         );
 
