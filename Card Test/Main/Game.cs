@@ -40,7 +40,7 @@ namespace Card_Test {
 				// Global.Run.Player.MaxSide = 1;
 				// Global.Run.Player.MaxMulti = 1;
 
-				Global.Run.Player.Material = 10000;
+				// Global.Run.Player.Material = 10000;
 
 				/*for (int i = 0; i < 5; i++) {
 					for (int ii = 0; ii < Global.Run.Player.Gear.Count; ii++) {
