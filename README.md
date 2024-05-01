@@ -30,4 +30,4 @@ This will build and run the application, make sure you have the dotnet runtime i
 
 The game will start by having you choose your character. Every character has a different starting deck and resources. You can view character stats by using the command `v <index>` where the index is the number next to the character.
 
-![Character Selection Screen](screenshots/character-select.png)
+![Character Selection Screen](screenshots/character-select.PNG)
