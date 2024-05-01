@@ -8,7 +8,7 @@ namespace Card_Test.Map.Rooms {
 			RoomType = 1;
 			Description = "This room has a staircase leading upwards";
 			RoomName = "start";
-			Symbol = "⁴↑⁰";
+			Symbol = "⁴^⁰";
 
 			Explored = true;
 			PlayerHere = true;

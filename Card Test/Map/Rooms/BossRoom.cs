@@ -8,14 +8,14 @@ namespace Card_Test.Map.Rooms {
 			RoomType = 2;
 			Description = "This room has a staircase leading downwards";
 			RoomName = "boss";
-			Symbol = "³↓⁰";
+			Symbol = "³v⁰";
 			MaxConnections = 1;
 
 			EnterAction = BossAction;
 		}
 
 		public override void BossDefeated() {
-			Symbol = "⁴↓⁰";
+			Symbol = "⁴v⁰";
 		}
 
 	}

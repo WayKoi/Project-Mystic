@@ -10,8 +10,8 @@ namespace Card_Test.Tables {
 			new CardMod("Overload", "ε", Overload),
 			new CardMod("Plus One", "+", PlusOne),
 			// new CardMod("Plus One", "-", MinusOne),
-			new CardMod("Thick", "↓"),
-			new CardMod("Thin", "↑"),
+			new CardMod("Thick", "v"),
+			new CardMod("Thin", "^"),
 			new CardMod("Status", "S", AfflictStatus)
 		};
 
