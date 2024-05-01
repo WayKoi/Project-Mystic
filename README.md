@@ -193,6 +193,8 @@ The altar allows you to offer up spells to have a chance at obtaining rewards. T
 
 ---
 
+**Stones**
+
 Next up, Stones. When you defeat a boss on a floor after the first one you will receive a Stone.
 
 *Note: since the first boss does not grant the player a stone, they get a mana container instead*
