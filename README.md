@@ -220,4 +220,6 @@ As you can see using a wind spell after a fire spell will cause Combust. This wi
 
 # Final notes
 
+There are a lot of things that I did not mention for the sake of keeping things simple and so that you can explore the game yourself.
+
 If you play the game and have any thoughts I'd love to hear them, Feel free to post on the discussions part of the repo.
