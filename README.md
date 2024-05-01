@@ -48,7 +48,7 @@ We'll have a quick peak at our inventory and our deck.
 
 ![Tango's Deck](screenshots/tangos-deck.PNG)
 
-Looking at are deck there are three main sections.
+Looking at our deck there are three main sections.
 
 **Default Card**
 
