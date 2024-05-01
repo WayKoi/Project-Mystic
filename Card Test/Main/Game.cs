@@ -15,7 +15,7 @@ namespace Card_Test {
 			test.EditDeck();*/
 
 			// PackCreator.CreatePack();
-			DeckCreator.CreateDeck();
+			// DeckCreator.CreateDeck();
 			// GearCreator.CreateGear();
 
 			/*Writer.WriteGear(TGear.Generate(GearTable.Tango[2], null), "test");
