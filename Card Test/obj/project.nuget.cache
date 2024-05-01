@@ -1,8 +1,10 @@
 {
   "version": 2,
-  "dgSpecHash": "Yw8WnBXpbfshH8jG//rsvsKHlUOuRSXG45E6uvcasMBkLI6YnXDgqDH60p08IS1SCe6VF9bcHBiPYIrk6sPOqA==",
+  "dgSpecHash": "D2ZbA5e2pM7Wpr7YJaMOyuel+jksbyVJIyqpYUTMWjjdZOuYPQ/Kk2W1g9d3jt2lt4AMZNIdo8Vpq0HN443QOQ==",
   "success": true,
   "projectFilePath": "C:\\Users\\Kyle\\Desktop\\#Dev\\Repos\\Project-Mystic\\Card Test\\Card Test.csproj",
-  "expectedPackageFiles": [],
+  "expectedPackageFiles": [
+    "C:\\Users\\Kyle\\.nuget\\packages\\microsoft.netcore.app.host.win-x64\\3.1.32\\microsoft.netcore.app.host.win-x64.3.1.32.nupkg.sha512"
+  ],
   "logs": []
 }
